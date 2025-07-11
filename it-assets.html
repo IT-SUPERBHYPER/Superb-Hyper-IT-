@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Superb IT Asset Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <script src=" https://unpkg.com/ @zxing/library@0.19.2/umd/index.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js "></script>
+  <style>
+    :root {
+      --superb-blue: #183d5c;
+      --superb-accent: #25b3b3;
+      --superb-card: #fff;
+      --superb-gradient: linear-gradient(135deg, #193e60 10%, #0e222f 100%);
+      --text-main: #183d5c;
+      --chip-bg: linear-gradient(90deg,#1ca4bb 60%,#25b3b3 100%);
+      --chip-txt: #fff;
+    }
+    body.dark {
+      --superb-blue: #f6fafd;
+      --superb-accent: #17e9c4;
+      --superb-card: #202b37;
+      --superb-gradient: linear-gradient(135deg,#141e2d 10%,#222f40 100%);
+      --text-main: #f6fafd;
+      --chip-bg: linear-gradient(90deg,#185a7d 60%,#1ca4bb 100%);
+      --chip-txt: #eaffff;
+    }
+    html, body {
+      min-height: 100vh;
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background: var(--superb-gradient);
+      font-family: 'Inter', Arial, sans-serif;
+      color: var(--text-main);
+      -webkit-tap-highlight-color: transparent;
+      transition: background .23s, color .22s;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      height: 100vh;
+      width: 100vw;
+    }
+    header {
+      background: var(--superb-card);
+      box-shadow: 0 2px 12px #183d5c11;
+      border-bottom: 1.5px solid var(--superb-accent);
+      padding: 18px 0 10px 0;
+      text-align: center;
+      font-family: 'Orbitron', 'Inter', Arial, sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1.1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .dark-toggle-btn {
+      position: absolute;
+      right: 13px; top: 11px;
+      background: linear-gradient(90deg, #373e4d 20%, #23c6e1 80%);
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 42px; height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #00334425;
+      z-index: 200;
+      transition: background .18s;
+    }
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      background: var(--superb-card);
+      padding: 12px 14px 10px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid #eee;
+      align-items: center;
+    }
+    body.dark .search-bar { border-bottom: 1px solid #28344a; }
+    .search-bar input, .search-bar select {
+      font-size: 1.11rem;
+      padding: 10px 11px;
+      border: 1.4px solid var(--superb-accent);
+      border-radius: 8px;
+      outline: none;
+      width: 100%;
+      max-width: 180px;
+      background: #f6fafd;
+      color: var(--text-main);
+      transition: background .2s, color .2s, border .2s;
+    }
+    body.dark .search-bar input, body.dark .search-bar select {
+      background: #222f40;
+      color: #eaffff;
+      border-color: #1ca4bb88;
+    }
+    .download-pdf-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-left: 8px;
+      font-size: 1.6rem;
+      vertical-align: middle;
+      color: #25b3b3;
+      transition: color 0.18s;
+      padding: 4px 0 0 0;
+      outline: none;
+    }
+    .download-pdf-btn:active { color: #183d5c; }
+    .badge {
+      display: inline-block;
+      min-width: 22px;
+      padding: 2px 8px;
+      font-size: 13px;
+      background: #25b3b3;
+      color: #fff;
+      border-radius: 12px;
+      margin-left: 7px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    body.dark .badge { background: #13e1c6; color: #222f40;}
+    .faulty-badge {
+      background: #e04d3c !important;
+    }
+    body.dark .faulty-badge { background: #d93424; }
+    .asset-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex: 1 1 auto;
+      overflow-y: auto;
+      background: transparent;
+    }
+    .asset-card {
+      background: var(--superb-card);
+      margin: 12px 11px 0 11px;
+      border-radius: 13px;
+      box-shadow: 0 2px 14px #1ca4bb13;
+      border: 1px solid #e3f3f7;
+      transition: box-shadow .17s;
+      position: relative;
+    }
+    body.dark .asset-card { border: 1px solid #28344a; }
+    .asset-card-header {
+      font-weight: 600;
+      font-size: 1.11rem;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      color: var(--text-main);
+    }
+    .asset-card .expand-icon {
+      margin-left: 8px;
+      font-size: 1.44rem;
+      color: #25b3b3;
+      transition: transform .16s;
+    }
+    .asset-card.open .expand-icon { transform: rotate(90deg);}
+    .asset-card.open { box-shadow: 0 6px 28px #25b3b325; }
+    .asset-details {
+      display: none;
+      padding: 10px 22px 14px 22px;
+      font-size: 1.03rem;
+      animation: fadein .22s;
+      color: var(--text-main);
+    }
+    .asset-card.open .asset-details { display: block;}
+    .asset-details label { font-weight: 600;}
+    .asset-details .chip {
+      display: inline-block;
+      background: var(--chip-bg);
+      color: var(--chip-txt);
+      border-radius: 6px;
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 2px 9px;
+      margin-right: 6px;
+    }
+    .asset-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn {
+      border: none;
+      outline: none;
+      font-size: 1.12rem;
+      border-radius: 8px;
+      font-weight: 700;
+      padding: 11px 23px;
+      cursor: pointer;
+      background: linear-gradient(90deg,#25b3b3 45%,#1791b3 100%);
+      color: #fff;
+      transition: background .15s;
+    }
+    .btn.delete { background: linear-gradient(90deg,#e04d3c 45%,#e85252 100%);}
+    .btn.cancel { background: #ccc; color: #183d5c;}
+    .btn.scan {
+      background: linear-gradient(90deg, #21db9d 30%, #23c6e1 90%);
+      color: #fff;
+      margin-left: 6px;
+      border-radius: 8px;
+      padding: 11px 15px;
+      box-shadow: 0 2px 9px #23c6e133;
+      font-size: 1rem;
+    }
+    .fab {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 100;
+      width: 62px; height: 62px;
+      background: linear-gradient(90deg,#25b3b3 60%,#1791b3 100%);
+      border-radius: 50%;
+      box-shadow: 0 2px 18px #183d5c33;
+      font-size: 2.5rem;
+      color: #fff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: box-shadow .13s, background .13s;
+    }
+    .fab:active { background: #11718d; }
+    #formModal {
+      position: fixed; left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(24,61,92,0.93);
+      display: none; align-items: center; justify-content: center;
+      z-index: 2000;
+    }
+    #formModal.show { display: flex;}
+    .form-card {
+      background: var(--superb-card);
+      border-radius: 15px;
+      padding: 22px 16px 15px 16px;
+      min-width: 90vw; max-width: 400px;
+      box-shadow: 0 6px 28px #25b3b3a7;
+      color: var(--text-main);
+      animation: fadein .28s;
+    }
+    .form-card form {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+    .footer {
+      text-align: center; margin-top: 13px; margin-bottom: 14px; color: #7aa9b2; font-size: 1rem;
+    }
+    body.dark .footer { color: #34f9e0;}
+    @media (min-width: 700px) {
+      .fab { width: 74px; height: 74px; font-size: 2.9rem; right: 44px; bottom: 40px;}
+      .form-card { min-width: 420px; }
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(12px);}
+      to { opacity: 1; transform: none;}
+    }
+    #scanner-container {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(24,61,92,0.93);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2500; flex-direction: column;
+      animation: fadein 0.33s;
+    }
+    #scanner-container video {border-radius: 12px;max-width: 97vw;max-height: 55vh;box-shadow: 0 5px 50px #22b3b3a0;}
+    #scanner-close {
+      background: #e04d3c;
+      color: #fff;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 38px;
+      margin-top: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px #e04d3c48;
+      letter-spacing: 0.7px;
+      transition: background 0.19s;
+    }
+    #scanner-close:active { background: #b82812; }
+    #scanner-status {
+      color: #fff;
+      margin-top: 12px;
+      text-align: center;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      text-shadow: 0 2px 20px #1791b3b8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Superb IT Asset Manager
+    <button class="dark-toggle-btn" id="darkModeBtn" title="Toggle dark mode">🌙</button>
+  </header>
+  <div class="search-bar">
+    <input type="search" id="searchInput" placeholder="Search assets...">
+    <select id="typeFilter"></select>
+    <select id="faultyFilter">
+      <option value="All">All Assets</option>
+      <option value="FaultyOnly">Faulty Only</option>
+    </select>
+    <button class="btn" id="exportBtn" style="padding:10px 18px;">Export CSV</button>
+    <button class="download-pdf-btn" id="pdfBtn" title="Download Type Quantities as PDF">
+      &#128459;
+    </button>
+  </div>
+  <ul class="asset-list" id="assetsBox"></ul>
+  <button class="fab" id="addFab" title="Add Asset">+</button>
+  <div class="footer">&copy; 2024 Superb Hyper. Data stored securely in JSONBin.</div>
+  <div id="formModal"><div class="form-card" id="formCard"></div></div>
+  <script>
+    // DARK MODE
+    function setDarkMode(state) {
+      if (state) {
+        document.body.classList.add('dark');
+        document.getElementById("darkModeBtn").textContent = "☀️";
+        localStorage.setItem('superb_darkmode','1');
+      } else {
+        document.body.classList.remove('dark');
+        document.getElementById("darkModeBtn").textContent = "🌙";
+        localStorage.setItem('superb_darkmode','0');
+      }
+    }
+    document.getElementById("darkModeBtn").onclick = function() {
+      setDarkMode(!document.body.classList.contains('dark'));
+    };
+    if (localStorage.getItem('superb_darkmode') === '1') setDarkMode(true);
+    // JSONBin Settings
+    const JSONBIN_API = "https://api.jsonbin.io/v3/b/686e6c4d5f4bcf6c3afb1182";
+    const JSONBIN_KEY = "$2a$10$BqM/s2f2kqZGoB5V14WtWOPOVO5/ccx/wZtBqmQsgeQqh6WMp42We";
+    const ASSET_TYPES = [
+      "Laptop", "Desktop", "Monitor", "Printer", "Router", "Switch", "Scanner",
+      "Keyboard", "Mouse", "UPS", "Projector", "Tablet", "Phone", "Access Point",
+      "Server", "Docking Station", "Webcam", "Headset", "Speaker", "External HDD/SSD",
+      "Flash Drive", "Cables", "Adapter", "Other", "Tally"
+    ];
+    const AREA_OPTIONS = [
+      "BULK", "ONLINE", "RETAIL", "KIOSK RETAIL", "KIOSK BULK", "SILVERS",  
+      "PRICING", "RECEIVING", "BARCODING", "DAMAGES", "OFFICE",
+      "CASH OFFICE", "SPARE", "TESTING", "DUMPING", "STORAGE"
+    ];
+    let ALL_ASSETS = [];
+    let CURRENT_TYPE = "All Types";
+    function getTypeCounts() {
+      const counts = {};
+      for (const a of ALL_ASSETS) {
+        if (!a.Type) continue;
+        counts[a.Type] = (counts[a.Type] || 0) + 1;
+      }
+      return counts;
+    }
+    function populateTypeFilter() {
+      const sel = document.getElementById("typeFilter");
+      const typeCounts = getTypeCounts();
+      let allTypes = [...new Set([
+        ...ASSET_TYPES,
+        ...ALL_ASSETS.map(a => a.Type).filter(Boolean)
+      ])].sort();
+      const total = ALL_ASSETS.length;
+      sel.innerHTML = `<option value="All Types">All Types (${total})</option>` +
+        allTypes.map(t =>
+          `<option value="${t}">${t} (${typeCounts[t]||0})</option>`
+        ).join('');
+      sel.value = CURRENT_TYPE;
+    }
+    async function fetchAssets() {
+      try {
+        let res = await fetch(JSONBIN_API + "/latest", {
+          headers: { "X-Master-Key": JSONBIN_KEY }
+        });
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        let data = await res.json();
+        ALL_ASSETS = data.record || [];
+        if (!ALL_ASSETS.length) {
+          ALL_ASSETS = [{
+            Name: "Sample Laptop",
+            Type: "Laptop",
+            Serial: "SN123456",
+            Area: "Office",
+            Assigned: "",
+            Notes: "",
+            Faulty: false
+          }];
+        }
+        populateTypeFilter();
+        renderAssets(
+          document.getElementById("searchInput").value,
+          document.getElementById("typeFilter").value,
+          document.getElementById("faultyFilter").value
+        );
+      } catch (e) {
+        document.getElementById("assetsBox").innerHTML = `<div style="color:red;margin:20px 0;text-align:center">Could not load data.<br>${e}</div>`;
+      }
+    }
+    async function saveAsset(asset, editingIdx) {
+      try {
+        let updated = [...ALL_ASSETS];
+        if (typeof editingIdx === "number") updated[editingIdx] = asset;
+        else updated.push(asset);
+        let res = await fetch(JSONBIN_API, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_KEY },
+          body: JSON.stringify(updated)
+        });
+        let result = await res.json();
+        if (result && result.record) fetchAssets();
+        else alert("Save failed: " + (result.message || JSON.stringify(result)));
+      } catch (e) { alert("Save error: " + e); }
+    }
+    async function deleteAsset(idx) {
+      if (!confirm("Delete this asset?")) return;
+      let updated = ALL_ASSETS.filter((a, i) => i !== idx);
+      try {
+        let res = await fetch(JSONBIN_API, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_KEY },
+          body: JSON.stringify(updated)
+        });
+        let result = await res.json();
+        if (result && result.record) fetchAssets();
+        else alert("Delete failed: " + (result.message || JSON.stringify(result)));
+      } catch (e) { alert("Delete error: " + e); }
+    }
+    function renderAssets(search = "", type = "All Types", faultyFilter = "All") {
+      const box = document.getElementById("assetsBox");
+      let filtered = ALL_ASSETS;
+      if (search) {
+        filtered = filtered.filter(a =>
+          (a.Name + (a.Type||"") + (a.Serial||"") + (a.Area||"") + (a.Assigned||"") + (a.Notes||""))
+            .toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      if (type && type !== "All Types") {
+        filtered = filtered.filter(a => (a.Type||"").toLowerCase() === type.toLowerCase());
+      }
+      if (faultyFilter === "FaultyOnly") {
+        filtered = filtered.filter(a => a.Faulty === true);
+      }
+      if (!filtered.length) {
+        box.innerHTML = `<div style="color:#888;margin:20px 0;text-align:center">No assets found.</div>`;
+        return;
+      }
+      box.innerHTML = filtered.map((a, i) => `
+        <li class="asset-card${a.open?" open":""}" data-idx="${i}">
+          <div class="asset-card-header">
+            <span>${a.Name || "<i>Unnamed Asset</i>"}</span>
+            ${a.Faulty ? '<span class="badge faulty-badge">Faulty</span>' : ''}
+            <span class="expand-icon">&#9654;</span>
+          </div>
+          <div class="asset-details">
+            <div><label>Type:</label> <span class="chip">${a.Type || "-"}</span></div>
+            <div><label>Faulty:</label> ${a.Faulty ? 'Yes' : 'No'}</div>
+            <div><label>Serial:</label> ${a.Serial || "-"} </div>
+            <div><label>Area:</label> ${a.Area || "-"} </div>
+            <div><label>Assigned:</label> ${a.Assigned || "-"} </div>
+            <div><label>Notes:</label> ${a.Notes || "-"} </div>
+            <div class="asset-actions">
+              <button class="btn" onclick="editAsset(${i})">Edit</button>
+              <button class="btn delete" onclick="deleteAsset(${i})">Delete</button>
+            </div>
+          </div>
+        </li>
+      `).join("");
+      box.querySelectorAll('.asset-card-header').forEach(header => {
+        header.onclick = function() {
+          let card = header.closest('.asset-card');
+          card.classList.toggle('open');
+        };
+      });
+    }
+    function showForm(asset = {}, editingIdx = null) {
+      const modal = document.getElementById("formModal");
+      const formCard = document.getElementById("formCard");
+      modal.classList.add("show");
+      formCard.innerHTML = `
+        <form id="assetForm" autocomplete="off">
+          <input type="text" name="Name" required placeholder="Asset Name" value="${asset.Name||""}">
+          <select name="Type">${ASSET_TYPES.map(t =>
+            `<option ${t===(asset.Type||ASSET_TYPES[0]) ? "selected":""}>${t}</option>`
+          ).join("")}</select>
+          <div style="display:flex;gap:7px;">
+            <input type="text" style="flex:1;" id="serialInput" name="Serial" required placeholder="Serial Number" value="${asset.Serial||""}">
+            <button type="button" class="btn scan" id="scanBarcodeBtn" title="Scan barcode">Scan</button>
+          </div>
+          <select name="Area" required>
+            <option value="" disabled ${asset.Area ? "" : "selected"}>Select Area</option>
+            ${AREA_OPTIONS.map(opt => `<option value="${opt}" ${asset.Area === opt ? "selected" : ""}>${opt}</option>`).join("")}
+          </select>
+          <input type="text" name="Assigned" placeholder="Assigned To" value="${asset.Assigned||""}">
+          <textarea name="Notes" placeholder="Notes" style="min-height:48px">${asset.Notes||""}</textarea>
+          <label style="display:flex;align-items:center;margin-top:6px;">
+            <input type="checkbox" name="Faulty" ${asset.Faulty ? "checked" : ""} style="margin-right:8px;">
+            Faulty
+          </label>
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
+            <button class="btn" type="submit" style="flex:1;">Save</button>
+            <button class="btn cancel" type="button" id="cancelBtn" style="flex:1;">Cancel</button>
+          </div>
+        </form>
+        <div id="scanner-modal-root"></div>
+      `;
+      document.getElementById("assetForm").onsubmit = function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = Object.fromEntries(new FormData(form));
+        const newAsset = {
+          ...formData,
+          Faulty: form.Faulty.checked
+        };
+        saveAsset(newAsset, editingIdx);
+        modal.classList.remove("show");
+      };
+      document.getElementById("cancelBtn").onclick = function() {
+        modal.classList.remove("show");
+      };
+      document.getElementById("scanBarcodeBtn").onclick = function() {
+        openBarcodeScanner(document.getElementById("serialInput"));
+      };
+    }
+    function openBarcodeScanner(inputElem) {
+      let modal = document.createElement("div");
+      modal.id = "scanner-container";
+      modal.innerHTML = `
+        <div>
+          <video id="barcodeVideo" autoplay></video>
+          <div id="scanner-status">Initializing camera...</div>
+          <button id="scanner-close">Cancel</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      let codeReader = new ZXing.BrowserMultiFormatReader();
+      let videoElem = modal.querySelector("#barcodeVideo");
+      let statusElem = modal.querySelector("#scanner-status");
+      let closeBtn = modal.querySelector("#scanner-close");
+      let stopScan = () => {
+        codeReader.reset();
+        if (modal.parentNode) modal.parentNode.removeChild(modal);
+      };
+      closeBtn.onclick = stopScan;
+      codeReader
+        .listVideoInputDevices()
+        .then(videoInputDevices => {
+          let backCam = videoInputDevices.find(
+            d => /back|rear|environment/i.test(d.label)
+          );
+          let deviceId = backCam ? backCam.deviceId : videoInputDevices[0]?.deviceId;
+          if (!deviceId && videoInputDevices.length) deviceId = videoInputDevices[0].deviceId;
+          if (!deviceId) {
+            statusElem.textContent = "No camera found!";
+            return;
+          }
+          codeReader.decodeFromVideoDevice(deviceId, videoElem, (result, err) => {
+            if (result) {
+              inputElem.value = result.text;
+              statusElem.textContent = "Scanned: " + result.text;
+              setTimeout(stopScan, 900);
+            } else if (err && !(err instanceof ZXing.NotFoundException)) {
+              statusElem.textContent = "Error: " + err;
+            }
+          });
+        })
+        .catch(e => {
+          statusElem.textContent = "Camera error: " + e;
+        });
+    }
+    window.editAsset = function(idx) {
+      showForm(ALL_ASSETS[idx], idx);
+    };
+    window.deleteAsset = deleteAsset;
+    document.getElementById("exportBtn").onclick = function() {
+      if (!ALL_ASSETS.length) return alert("No assets to export.");
+      const csv = [
+        ["Name","Type","Serial","Area","Assigned","Notes","Faulty"].join(","),
+        ...ALL_ASSETS.map(a =>
+          [a.Name,a.Type,a.Serial,a.Area,a.Assigned,a.Notes,a.Faulty ? "Yes" : "No"]
+            .map(x => `"${(x||"").replace(/"/g,'""')}"`).join(",")
+        )
+      ].join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "Superb_IT_Assets.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    document.getElementById("pdfBtn").onclick = function() {
+      const counts = getTypeCounts();
+      const doc = new window.jspdf.jsPDF();
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.text("Asset Types & Quantities", 14, 18);
+      doc.setFontSize(12);
+      let y = 32;
+      Object.keys(counts).sort().forEach((type, idx) => {
+        doc.text(`${type}:`, 22, y + idx * 9);
+        doc.text(`${counts[type]}`, 132, y + idx * 9, {align:'right'});
+      });
+      doc.setFontSize(11);
+      doc.text(`Total assets: ${ALL_ASSETS.length}`, 14, y + Object.keys(counts).length * 9 + 10);
+      doc.save("Asset_Types_Quantities.pdf");
+    };
+    document.getElementById("addFab").onclick = function() { showForm(); };
+    document.getElementById("searchInput").oninput = function(e) {
+      renderAssets(e.target.value, document.getElementById("typeFilter").value, document.getElementById("faultyFilter").value);
+    };
+    document.getElementById("typeFilter").onchange = function(e) {
+      CURRENT_TYPE = e.target.value;
+      renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, document.getElementById("faultyFilter").value);
+    };
+    document.getElementById("faultyFilter").onchange = function(e) {
+      renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, e.target.value);
+    };
+    setTimeout(fetchAssets, 120);
+    window.onresize = function() {
+      renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, document.getElementById("faultyFilter").value);
+    };
+  </script>
+</body>
+</html>
