@@ -134,9 +134,12 @@
       font-weight: 700;
       vertical-align: middle;
     }
-    body.dark .badge { background: #13e1c6; color: #222f40;}
+    body.dark .badge { background: #13e1c6; color: #222f40; }
     .faulty-badge {
       background: #e04d3c !important;
+    }
+    .reserved-badge {
+      background: #f3b047 !important;
     }
     body.dark .faulty-badge { background: #d93424; }
     .asset-list {
@@ -174,7 +177,7 @@
       color: #25b3b3;
       transition: transform .16s;
     }
-    .asset-card.open .expand-icon { transform: rotate(90deg);}
+    .asset-card.open .expand-icon { transform: rotate(90deg); }
     .asset-card.open { box-shadow: 0 6px 28px #25b3b325; }
     .asset-details {
       display: none;
@@ -183,8 +186,8 @@
       animation: fadein .22s;
       color: var(--text-main);
     }
-    .asset-card.open .asset-details { display: block;}
-    .asset-details label { font-weight: 600;}
+    .asset-card.open .asset-details { display: block; }
+    .asset-details label { font-weight: 600; }
     .asset-details .chip {
       display: inline-block;
       background: var(--chip-bg);
@@ -212,8 +215,8 @@
       color: #fff;
       transition: background .15s;
     }
-    .btn.delete { background: linear-gradient(90deg,#e04d3c 45%,#e85252 100%);}
-    .btn.cancel { background: #ccc; color: #183d5c;}
+    .btn.delete { background: linear-gradient(90deg,#e04d3c 45%,#e85252 100%); }
+    .btn.cancel { background: #ccc; color: #183d5c; }
     .btn.scan {
       background: linear-gradient(90deg, #21db9d 30%, #23c6e1 90%);
       color: #fff;
@@ -248,7 +251,7 @@
       display: none; align-items: center; justify-content: center;
       z-index: 2000;
     }
-    #formModal.show { display: flex;}
+    #formModal.show { display: flex; }
     .form-card {
       background: var(--superb-card);
       border-radius: 15px;
@@ -266,14 +269,14 @@
     .footer {
       text-align: center; margin-top: 13px; margin-bottom: 14px; color: #7aa9b2; font-size: 1rem;
     }
-    body.dark .footer { color: #34f9e0;}
+    body.dark .footer { color: #34f9e0; }
     @media (min-width: 700px) {
-      .fab { width: 74px; height: 74px; font-size: 2.9rem; right: 44px; bottom: 40px;}
+      .fab { width: 74px; height: 74px; font-size: 2.9rem; right: 44px; bottom: 40px; }
       .form-card { min-width: 420px; }
     }
     @keyframes fadein {
-      from { opacity: 0; transform: translateY(12px);}
-      to { opacity: 1; transform: none;}
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: none; }
     }
     #scanner-container {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -282,7 +285,12 @@
       z-index: 2500; flex-direction: column;
       animation: fadein 0.33s;
     }
-    #scanner-container video {border-radius: 12px;max-width: 97vw;max-height: 55vh;box-shadow: 0 5px 50px #22b3b3a0;}
+    #scanner-container video {
+      border-radius: 12px;
+      max-width: 97vw;
+      max-height: 55vh;
+      box-shadow: 0 5px 50px #22b3b3a0;
+    }
     #scanner-close {
       background: #e04d3c;
       color: #fff;
@@ -317,19 +325,19 @@
   <div class="search-bar">
     <input type="search" id="searchInput" placeholder="Search assets...">
     <select id="typeFilter"></select>
-    <select id="faultyFilter">
+    <select id="viewFilter">
       <option value="All">All Assets</option>
       <option value="FaultyOnly">Faulty Only</option>
+      <option value="ReservedOnly">Reserved Only</option>
     </select>
     <button class="btn" id="exportBtn" style="padding:10px 18px;">Export CSV</button>
-    <button class="download-pdf-btn" id="pdfBtn" title="Download Type Quantities as PDF">
-      &#128459;
-    </button>
+    <button class="download-pdf-btn" id="pdfBtn" title="Download Type Quantities as PDF">&#128459;</button>
   </div>
   <ul class="asset-list" id="assetsBox"></ul>
   <button class="fab" id="addFab" title="Add Asset">+</button>
   <div class="footer">&copy; 2024 Superb Hyper. Data stored securely in JSONBin.</div>
   <div id="formModal"><div class="form-card" id="formCard"></div></div>
+
   <script>
     // DARK MODE
     function setDarkMode(state) {
@@ -347,7 +355,8 @@
       setDarkMode(!document.body.classList.contains('dark'));
     };
     if (localStorage.getItem('superb_darkmode') === '1') setDarkMode(true);
-    // JSONBin Settings
+
+    // ASSET MANAGER CONFIG
     const JSONBIN_API = "https://api.jsonbin.io/v3/b/686e6c4d5f4bcf6c3afb1182";
     const JSONBIN_KEY = "$2a$10$BqM/s2f2kqZGoB5V14WtWOPOVO5/ccx/wZtBqmQsgeQqh6WMp42We";
     const ASSET_TYPES = [
@@ -357,20 +366,26 @@
       "Flash Drive", "Cables", "Adapter", "Other", "Tally"
     ];
     const AREA_OPTIONS = [
-      "BULK", "ONLINE", "RETAIL", "KIOSK RETAIL", "KIOSK BULK", "SILVERS",  
+      "BULK", "ONLINE", "RETAIL", "KIOSK RETAIL", "KIOSK BULK", "SILVERS",
       "PRICING", "RECEIVING", "BARCODING", "DAMAGES", "OFFICE",
       "CASH OFFICE", "SPARE", "TESTING", "DUMPING", "STORAGE"
     ];
     let ALL_ASSETS = [];
     let CURRENT_TYPE = "All Types";
+
     function getTypeCounts() {
-      const counts = {};
+      const counts = {
+        total: ALL_ASSETS.length,
+        faulty: ALL_ASSETS.filter(a => a.Faulty).length,
+        reserved: ALL_ASSETS.filter(a => a.Reserved).length
+      };
       for (const a of ALL_ASSETS) {
         if (!a.Type) continue;
         counts[a.Type] = (counts[a.Type] || 0) + 1;
       }
       return counts;
     }
+
     function populateTypeFilter() {
       const sel = document.getElementById("typeFilter");
       const typeCounts = getTypeCounts();
@@ -378,13 +393,14 @@
         ...ASSET_TYPES,
         ...ALL_ASSETS.map(a => a.Type).filter(Boolean)
       ])].sort();
-      const total = ALL_ASSETS.length;
+      const total = typeCounts.total;
       sel.innerHTML = `<option value="All Types">All Types (${total})</option>` +
         allTypes.map(t =>
           `<option value="${t}">${t} (${typeCounts[t]||0})</option>`
         ).join('');
       sel.value = CURRENT_TYPE;
     }
+
     async function fetchAssets() {
       try {
         let res = await fetch(JSONBIN_API + "/latest", {
@@ -401,19 +417,27 @@
             Area: "Office",
             Assigned: "",
             Notes: "",
-            Faulty: false
+            Faulty: false,
+            Reserved: false
           }];
         }
+        ALL_ASSETS.forEach(a => {
+          if (a.Reserved === undefined) a.Reserved = false;
+        });
         populateTypeFilter();
         renderAssets(
           document.getElementById("searchInput").value,
           document.getElementById("typeFilter").value,
-          document.getElementById("faultyFilter").value
+          document.getElementById("viewFilter").value
         );
       } catch (e) {
-        document.getElementById("assetsBox").innerHTML = `<div style="color:red;margin:20px 0;text-align:center">Could not load data.<br>${e}</div>`;
+        document.getElementById("assetsBox").innerHTML = `
+          <div style="color:red;margin:20px 0;text-align:center">
+            Could not load data.<br>${e}
+          </div>`;
       }
     }
+
     async function saveAsset(asset, editingIdx) {
       try {
         let updated = [...ALL_ASSETS];
@@ -429,6 +453,7 @@
         else alert("Save failed: " + (result.message || JSON.stringify(result)));
       } catch (e) { alert("Save error: " + e); }
     }
+
     async function deleteAsset(idx) {
       if (!confirm("Delete this asset?")) return;
       let updated = ALL_ASSETS.filter((a, i) => i !== idx);
@@ -443,39 +468,49 @@
         else alert("Delete failed: " + (result.message || JSON.stringify(result)));
       } catch (e) { alert("Delete error: " + e); }
     }
-    function renderAssets(search = "", type = "All Types", faultyFilter = "All") {
+
+    function renderAssets(search = "", type = "All Types", viewFilter = "All") {
       const box = document.getElementById("assetsBox");
       let filtered = ALL_ASSETS;
+
       if (search) {
         filtered = filtered.filter(a =>
           (a.Name + (a.Type||"") + (a.Serial||"") + (a.Area||"") + (a.Assigned||"") + (a.Notes||""))
             .toLowerCase().includes(search.toLowerCase())
         );
       }
+
       if (type && type !== "All Types") {
         filtered = filtered.filter(a => (a.Type||"").toLowerCase() === type.toLowerCase());
       }
-      if (faultyFilter === "FaultyOnly") {
+
+      if (viewFilter === "FaultyOnly") {
         filtered = filtered.filter(a => a.Faulty === true);
+      } else if (viewFilter === "ReservedOnly") {
+        filtered = filtered.filter(a => a.Reserved === true);
       }
+
       if (!filtered.length) {
         box.innerHTML = `<div style="color:#888;margin:20px 0;text-align:center">No assets found.</div>`;
         return;
       }
+
       box.innerHTML = filtered.map((a, i) => `
         <li class="asset-card${a.open?" open":""}" data-idx="${i}">
           <div class="asset-card-header">
             <span>${a.Name || "<i>Unnamed Asset</i>"}</span>
             ${a.Faulty ? '<span class="badge faulty-badge">Faulty</span>' : ''}
+            ${a.Reserved ? '<span class="badge reserved-badge">Reserved</span>' : ''}
             <span class="expand-icon">&#9654;</span>
           </div>
           <div class="asset-details">
             <div><label>Type:</label> <span class="chip">${a.Type || "-"}</span></div>
             <div><label>Faulty:</label> ${a.Faulty ? 'Yes' : 'No'}</div>
-            <div><label>Serial:</label> ${a.Serial || "-"} </div>
-            <div><label>Area:</label> ${a.Area || "-"} </div>
-            <div><label>Assigned:</label> ${a.Assigned || "-"} </div>
-            <div><label>Notes:</label> ${a.Notes || "-"} </div>
+            <div><label>Reserved:</label> ${a.Reserved ? 'Yes' : 'No'}</div>
+            <div><label>Serial:</label> ${a.Serial || "-"}</div>
+            <div><label>Area:</label> ${a.Area || "-"}</div>
+            <div><label>Assigned:</label> ${a.Assigned || "-"}</div>
+            <div><label>Notes:</label> ${a.Notes || "-"}</div>
             <div class="asset-actions">
               <button class="btn" onclick="editAsset(${i})">Edit</button>
               <button class="btn delete" onclick="deleteAsset(${i})">Delete</button>
@@ -483,6 +518,7 @@
           </div>
         </li>
       `).join("");
+
       box.querySelectorAll('.asset-card-header').forEach(header => {
         header.onclick = function() {
           let card = header.closest('.asset-card');
@@ -490,6 +526,7 @@
         };
       });
     }
+
     function showForm(asset = {}, editingIdx = null) {
       const modal = document.getElementById("formModal");
       const formCard = document.getElementById("formCard");
@@ -514,6 +551,10 @@
             <input type="checkbox" name="Faulty" ${asset.Faulty ? "checked" : ""} style="margin-right:8px;">
             Faulty
           </label>
+          <label style="display:flex;align-items:center;margin-top:6px;">
+            <input type="checkbox" name="Reserved" ${asset.Reserved ? "checked" : ""} style="margin-right:8px;">
+            Reserved
+          </label>
           <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
             <button class="btn" type="submit" style="flex:1;">Save</button>
             <button class="btn cancel" type="button" id="cancelBtn" style="flex:1;">Cancel</button>
@@ -527,7 +568,8 @@
         const formData = Object.fromEntries(new FormData(form));
         const newAsset = {
           ...formData,
-          Faulty: form.Faulty.checked
+          Faulty: form.Faulty.checked,
+          Reserved: form.Assigned.value.trim() !== "" || form.Reserved.checked
         };
         saveAsset(newAsset, editingIdx);
         modal.classList.remove("show");
@@ -539,6 +581,7 @@
         openBarcodeScanner(document.getElementById("serialInput"));
       };
     }
+
     function openBarcodeScanner(inputElem) {
       let modal = document.createElement("div");
       modal.id = "scanner-container";
@@ -559,12 +602,9 @@
         if (modal.parentNode) modal.parentNode.removeChild(modal);
       };
       closeBtn.onclick = stopScan;
-      codeReader
-        .listVideoInputDevices()
+      codeReader.listVideoInputDevices()
         .then(videoInputDevices => {
-          let backCam = videoInputDevices.find(
-            d => /back|rear|environment/i.test(d.label)
-          );
+          let backCam = videoInputDevices.find(d => /back|rear|environment/i.test(d.label));
           let deviceId = backCam ? backCam.deviceId : videoInputDevices[0]?.deviceId;
           if (!deviceId && videoInputDevices.length) deviceId = videoInputDevices[0].deviceId;
           if (!deviceId) {
@@ -581,30 +621,39 @@
             }
           });
         })
-        .catch(e => {
-          statusElem.textContent = "Camera error: " + e;
-        });
+        .catch(e => statusElem.textContent = "Camera error: " + e);
     }
+
     window.editAsset = function(idx) {
       showForm(ALL_ASSETS[idx], idx);
     };
     window.deleteAsset = deleteAsset;
+
     document.getElementById("exportBtn").onclick = function() {
       if (!ALL_ASSETS.length) return alert("No assets to export.");
+      let filtered = ALL_ASSETS;
+      const viewFilter = document.getElementById("viewFilter").value;
+      if (viewFilter === "FaultyOnly") {
+        filtered = filtered.filter(a => a.Faulty === true);
+      } else if (viewFilter === "ReservedOnly") {
+        filtered = filtered.filter(a => a.Reserved === true);
+      }
       const csv = [
-        ["Name","Type","Serial","Area","Assigned","Notes","Faulty"].join(","),
-        ...ALL_ASSETS.map(a =>
-          [a.Name,a.Type,a.Serial,a.Area,a.Assigned,a.Notes,a.Faulty ? "Yes" : "No"]
+        ["Name","Type","Serial","Area","Assigned","Notes","Faulty","Reserved"].join(","),
+        ...filtered.map(a =>
+          [a.Name,a.Type,a.Serial,a.Area,a.Assigned,a.Notes,a.Faulty ? "Yes" : "No",a.Reserved ? "Yes" : "No"]
             .map(x => `"${(x||"").replace(/"/g,'""')}"`).join(",")
         )
       ].join("\n");
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url; a.download = "Superb_IT_Assets.csv";
+      a.href = url;
+      a.download = "IT_Assets_" + (viewFilter === "ReservedOnly" ? "Reserved" : viewFilter === "FaultyOnly" ? "Faulty" : "All") + ".csv";
       a.click();
       URL.revokeObjectURL(url);
     };
+
     document.getElementById("pdfBtn").onclick = function() {
       const counts = getTypeCounts();
       const doc = new window.jspdf.jsPDF();
@@ -615,26 +664,31 @@
       let y = 32;
       Object.keys(counts).sort().forEach((type, idx) => {
         doc.text(`${type}:`, 22, y + idx * 9);
-        doc.text(`${counts[type]}`, 132, y + idx * 9, {align:'right'});
+        doc.text(`${counts[type]}`, 132, y + idx * 9, { align: 'right' });
       });
       doc.setFontSize(11);
       doc.text(`Total assets: ${ALL_ASSETS.length}`, 14, y + Object.keys(counts).length * 9 + 10);
       doc.save("Asset_Types_Quantities.pdf");
     };
+
     document.getElementById("addFab").onclick = function() { showForm(); };
+
     document.getElementById("searchInput").oninput = function(e) {
-      renderAssets(e.target.value, document.getElementById("typeFilter").value, document.getElementById("faultyFilter").value);
+      renderAssets(e.target.value, document.getElementById("typeFilter").value, document.getElementById("viewFilter").value);
     };
+
     document.getElementById("typeFilter").onchange = function(e) {
       CURRENT_TYPE = e.target.value;
-      renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, document.getElementById("faultyFilter").value);
+      renderAssets(document.getElementById("searchInput").value, e.target.value, document.getElementById("viewFilter").value);
     };
-    document.getElementById("faultyFilter").onchange = function(e) {
+
+    document.getElementById("viewFilter").onchange = function(e) {
       renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, e.target.value);
     };
+
     setTimeout(fetchAssets, 120);
     window.onresize = function() {
-      renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, document.getElementById("faultyFilter").value);
+      renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, document.getElementById("viewFilter").value);
     };
   </script>
 </body>
