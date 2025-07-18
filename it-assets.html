@@ -338,6 +338,9 @@
   <div class="footer">&copy; 2024 Superb Hyper. Data stored securely in JSONBin.</div>
   <div id="formModal"><div class="form-card" id="formCard"></div></div>
 
+  <!-- Autocomplete Datalist -->
+  <datalist id="assetNameSuggestions"></datalist>
+
   <script>
     // DARK MODE
     function setDarkMode(state) {
@@ -386,6 +389,12 @@
       return counts;
     }
 
+    function updateAssetNameSuggestions() {
+      const names = [...new Set(ALL_ASSETS.map(a => a.Name).filter(Boolean))];
+      const datalist = document.getElementById("assetNameSuggestions");
+      datalist.innerHTML = names.map(name => `<option value="${name}">${name}</option>`).join("");
+    }
+
     function populateTypeFilter() {
       const sel = document.getElementById("typeFilter");
       const typeCounts = getTypeCounts();
@@ -424,6 +433,7 @@
         ALL_ASSETS.forEach(a => {
           if (a.Reserved === undefined) a.Reserved = false;
         });
+        updateAssetNameSuggestions();
         populateTypeFilter();
         renderAssets(
           document.getElementById("searchInput").value,
@@ -472,29 +482,24 @@
     function renderAssets(search = "", type = "All Types", viewFilter = "All") {
       const box = document.getElementById("assetsBox");
       let filtered = ALL_ASSETS;
-
       if (search) {
         filtered = filtered.filter(a =>
           (a.Name + (a.Type||"") + (a.Serial||"") + (a.Area||"") + (a.Assigned||"") + (a.Notes||""))
             .toLowerCase().includes(search.toLowerCase())
         );
       }
-
       if (type && type !== "All Types") {
         filtered = filtered.filter(a => (a.Type||"").toLowerCase() === type.toLowerCase());
       }
-
       if (viewFilter === "FaultyOnly") {
         filtered = filtered.filter(a => a.Faulty === true);
       } else if (viewFilter === "ReservedOnly") {
         filtered = filtered.filter(a => a.Reserved === true);
       }
-
       if (!filtered.length) {
         box.innerHTML = `<div style="color:#888;margin:20px 0;text-align:center">No assets found.</div>`;
         return;
       }
-
       box.innerHTML = filtered.map((a, i) => `
         <li class="asset-card${a.open?" open":""}" data-idx="${i}">
           <div class="asset-card-header">
@@ -518,7 +523,6 @@
           </div>
         </li>
       `).join("");
-
       box.querySelectorAll('.asset-card-header').forEach(header => {
         header.onclick = function() {
           let card = header.closest('.asset-card');
@@ -533,7 +537,7 @@
       modal.classList.add("show");
       formCard.innerHTML = `
         <form id="assetForm" autocomplete="off">
-          <input type="text" name="Name" required placeholder="Asset Name" value="${asset.Name||""}">
+          <input type="text" name="Name" list="assetNameSuggestions" required placeholder="Asset Name" value="${asset.Name||""}">
           <select name="Type">${ASSET_TYPES.map(t =>
             `<option ${t===(asset.Type||ASSET_TYPES[0]) ? "selected":""}>${t}</option>`
           ).join("")}</select>
