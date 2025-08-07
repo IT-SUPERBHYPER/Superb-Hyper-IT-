@@ -2,70 +2,113 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Superb IT Asset Manager</title>
+  <title>IT Asset Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
-  <script src=" https://unpkg.com/ @zxing/library@0.19.2/umd/index.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js "></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@zxing/library@0.19.2/umd/index.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
-      --superb-blue: #183d5c;
-      --superb-accent: #25b3b3;
-      --superb-card: #fff;
-      --superb-gradient: linear-gradient(135deg, #193e60 10%, #0e222f 100%);
-      --text-main: #183d5c;
-      --chip-bg: linear-gradient(90deg,#1ca4bb 60%,#25b3b3 100%);
-      --chip-txt: #fff;
+      --neon-pink: #ff2a6d;
+      --neon-blue: #05d9e8;
+      --neon-purple: #d300c5;
+      --neon-green: #00ff9d;
+      --neon-yellow: #f9f002;
+      --dark-bg: #0d0221;
+      --darker-bg: #050112;
+      --card-bg: #1a1b41;
+      --card-border: #2a3d7a;
+      --text-main: #d1f7ff;
+      --text-dim: #8b9bb4;
+      --glow-blue: 0 0 10px rgba(5, 217, 232, 0.7), 0 0 20px rgba(5, 217, 232, 0.5);
+      --glow-pink: 0 0 10px rgba(255, 42, 109, 0.7), 0 0 20px rgba(255, 42, 109, 0.5);
+      --glow-purple: 0 0 10px rgba(211, 0, 197, 0.7), 0 0 20px rgba(211, 0, 197, 0.5);
+      --glow-green: 0 0 10px rgba(0, 255, 157, 0.7), 0 0 20px rgba(0, 255, 157, 0.5);
+      --chip-bg: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 100%);
+      --reserved-color: var(--neon-yellow);
+      --quantity-color: var(--neon-green);
+      --faulty-color: var(--neon-pink);
     }
-    body.dark {
-      --superb-blue: #f6fafd;
-      --superb-accent: #17e9c4;
-      --superb-card: #202b37;
-      --superb-gradient: linear-gradient(135deg,#141e2d 10%,#222f40 100%);
-      --text-main: #f6fafd;
-      --chip-bg: linear-gradient(90deg,#185a7d 60%,#1ca4bb 100%);
-      --chip-txt: #eaffff;
-    }
-    html, body {
+    
+    body {
       min-height: 100vh;
       height: 100vh;
       width: 100vw;
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      background: var(--superb-gradient);
-      font-family: 'Inter', Arial, sans-serif;
+      background: radial-gradient(circle at center, var(--dark-bg) 0%, var(--darker-bg) 100%);
+      font-family: 'Rajdhani', sans-serif;
       color: var(--text-main);
       -webkit-tap-highlight-color: transparent;
-      transition: background .23s, color .22s;
+      overflow-x: hidden;
+      position: relative;
     }
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: flex-start;
-      height: 100vh;
-      width: 100vw;
+    
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        linear-gradient(45deg, transparent 65%, rgba(255, 42, 109, 0.05) 65%) 0 0,
+        linear-gradient(-45deg, transparent 65%, rgba(5, 217, 232, 0.05) 65%) 0 0;
+      background-size: 20px 20px;
+      pointer-events: none;
+      z-index: -1;
     }
+    
+    /* Cyberpunk grid lines animation */
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    
+    .scanlines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(5, 217, 232, 0.03) 50%,
+        transparent 100%
+      );
+      background-size: 100% 4px;
+      animation: scanline 8s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
     header {
-      background: var(--superb-card);
-      box-shadow: 0 2px 12px #183d5c11;
-      border-bottom: 1.5px solid var(--superb-accent);
-      padding: 18px 0 10px 0;
+      background: rgba(26, 27, 65, 0.85);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 20px rgba(5, 217, 232, 0.3);
+      border-bottom: 1px solid var(--neon-blue);
+      padding: 18px 0 14px 0;
       text-align: center;
-      font-family: 'Orbitron', 'Inter', Arial, sans-serif;
+      font-family: 'Orbitron', sans-serif;
       font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: 1.1px;
+      font-weight: 900;
+      letter-spacing: 2px;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
+      z-index: 10;
+      text-transform: uppercase;
+      color: var(--neon-blue);
+      text-shadow: var(--glow-blue);
     }
+    
     .dark-toggle-btn {
       position: absolute;
-      right: 13px; top: 11px;
-      background: linear-gradient(90deg, #373e4d 20%, #23c6e1 80%);
+      right: 20px; top: 14px;
+      background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%);
       color: #fff;
       font-size: 1.4rem;
       font-weight: 700;
@@ -76,39 +119,56 @@
       justify-content: center;
       border: none;
       cursor: pointer;
-      box-shadow: 0 2px 8px #00334425;
+      box-shadow: 0 0 15px rgba(211, 0, 197, 0.7);
       z-index: 200;
-      transition: background .18s;
+      transition: all 0.3s ease;
     }
+    
+    .dark-toggle-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(211, 0, 197, 0.9);
+    }
+    
     .search-bar {
       display: flex;
-      gap: 10px;
-      background: var(--superb-card);
-      padding: 12px 14px 10px 14px;
+      gap: 12px;
+      background: rgba(26, 27, 65, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 15px 20px;
       position: sticky;
       top: 0;
       z-index: 20;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid rgba(5, 217, 232, 0.3);
       align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     }
-    body.dark .search-bar { border-bottom: 1px solid #28344a; }
+    
     .search-bar input, .search-bar select {
       font-size: 1.11rem;
-      padding: 10px 11px;
-      border: 1.4px solid var(--superb-accent);
+      padding: 12px 15px;
+      border: 1px solid var(--neon-blue);
       border-radius: 8px;
       outline: none;
-      width: 100%;
-      max-width: 180px;
-      background: #f6fafd;
+      flex: 1;
+      min-width: 120px;
+      background: rgba(10, 15, 35, 0.8);
       color: var(--text-main);
-      transition: background .2s, color .2s, border .2s;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 0 10px rgba(5, 217, 232, 0.2);
     }
-    body.dark .search-bar input, body.dark .search-bar select {
-      background: #222f40;
-      color: #eaffff;
-      border-color: #1ca4bb88;
+    
+    .search-bar input:focus, .search-bar select:focus {
+      border-color: var(--neon-pink);
+      box-shadow: inset 0 0 15px rgba(255, 42, 109, 0.3), 0 0 10px rgba(255, 42, 109, 0.5);
     }
+    
+    .search-bar input::placeholder {
+      color: var(--text-dim);
+    }
+    
     .download-pdf-btn {
       background: none;
       border: none;
@@ -116,257 +176,703 @@
       margin-left: 8px;
       font-size: 1.6rem;
       vertical-align: middle;
-      color: #25b3b3;
-      transition: color 0.18s;
+      color: var(--neon-blue);
+      transition: all 0.3s ease;
       padding: 4px 0 0 0;
       outline: none;
+      text-shadow: var(--glow-blue);
     }
-    .download-pdf-btn:active { color: #183d5c; }
+    
+    .download-pdf-btn:hover {
+      color: var(--neon-pink);
+      text-shadow: var(--glow-pink);
+      transform: scale(1.1);
+    }
+    
     .badge {
       display: inline-block;
       min-width: 22px;
-      padding: 2px 8px;
+      padding: 3px 10px;
       font-size: 13px;
-      background: #25b3b3;
-      color: #fff;
-      border-radius: 12px;
+      background: var(--neon-blue);
+      color: var(--dark-bg);
+      border-radius: 15px;
       margin-left: 7px;
       font-weight: 700;
       vertical-align: middle;
+      text-shadow: none;
+      box-shadow: 0 0 8px rgba(5, 217, 232, 0.7);
     }
-    body.dark .badge { background: #13e1c6; color: #222f40; }
+    
     .faulty-badge {
-      background: #e04d3c !important;
+      background: var(--faulty-color) !important;
+      color: var(--dark-bg);
+      box-shadow: 0 0 8px rgba(255, 42, 109, 0.7);
     }
+    
     .reserved-badge {
-      background: #f3b047 !important;
+      background: var(--reserved-color) !important;
+      color: var(--dark-bg);
+      box-shadow: 0 0 8px rgba(249, 240, 2, 0.7);
     }
-    body.dark .faulty-badge { background: #d93424; }
+    
+    .quantity-badge {
+      background: var(--quantity-color) !important;
+      color: var(--dark-bg);
+      box-shadow: 0 0 8px rgba(0, 255, 157, 0.7);
+    }
+    
     .asset-list {
       list-style: none;
-      padding: 0;
+      padding: 15px;
       margin: 0;
       flex: 1 1 auto;
       overflow-y: auto;
       background: transparent;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+      perspective: 1000px;
     }
+    
     .asset-card {
-      background: var(--superb-card);
-      margin: 12px 11px 0 11px;
-      border-radius: 13px;
-      box-shadow: 0 2px 14px #1ca4bb13;
-      border: 1px solid #e3f3f7;
-      transition: box-shadow .17s;
+      background: linear-gradient(145deg, rgba(26, 27, 65, 0.9) 0%, rgba(10, 15, 35, 0.9) 100%);
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(5, 217, 232, 0.2);
+      border: 1px solid var(--card-border);
+      transition: all 0.3s ease;
       position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transform: translateZ(0);
     }
-    body.dark .asset-card { border: 1px solid #28344a; }
+    
+    .asset-card::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+      z-index: -1;
+      border-radius: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .asset-card:hover {
+      transform: translateY(-5px) translateZ(10px);
+      box-shadow: 0 15px 35px rgba(5, 217, 232, 0.4);
+    }
+    
+    .asset-card:hover::before {
+      opacity: 0.3;
+    }
+    
+    .asset-card.open {
+      box-shadow: 0 10px 30px rgba(5, 217, 232, 0.6);
+      transform: translateY(-3px);
+    }
+    
     .asset-card-header {
-      font-weight: 600;
-      font-size: 1.11rem;
-      padding: 14px 20px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      padding: 18px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
       user-select: none;
-      color: var(--text-main);
+      color: var(--neon-blue);
+      text-shadow: var(--glow-blue);
+      border-bottom: 1px solid rgba(5, 217, 232, 0.2);
+      transition: all 0.3s ease;
     }
+    
+    .asset-card:hover .asset-card-header {
+      color: var(--neon-green);
+      text-shadow: var(--glow-green);
+    }
+    
     .asset-card .expand-icon {
       margin-left: 8px;
       font-size: 1.44rem;
-      color: #25b3b3;
-      transition: transform .16s;
+      color: var(--neon-blue);
+      transition: all 0.3s ease;
+      text-shadow: var(--glow-blue);
     }
-    .asset-card.open .expand-icon { transform: rotate(90deg); }
-    .asset-card.open { box-shadow: 0 6px 28px #25b3b325; }
+    
+    .asset-card.open .expand-icon {
+      transform: rotate(90deg);
+      color: var(--neon-green);
+      text-shadow: var(--glow-green);
+    }
+    
     .asset-details {
       display: none;
-      padding: 10px 22px 14px 22px;
-      font-size: 1.03rem;
-      animation: fadein .22s;
+      padding: 15px 22px;
+      font-size: 1.05rem;
+      animation: fadein 0.3s ease-out;
       color: var(--text-main);
+      line-height: 1.6;
     }
-    .asset-card.open .asset-details { display: block; }
-    .asset-details label { font-weight: 600; }
+    
+    .asset-card.open .asset-details {
+      display: block;
+    }
+    
+    .asset-details label {
+      font-weight: 600;
+      color: var(--neon-green);
+      display: inline-block;
+      min-width: 80px;
+    }
+    
     .asset-details .chip {
       display: inline-block;
       background: var(--chip-bg);
-      color: var(--chip-txt);
+      color: var(--dark-bg);
       border-radius: 6px;
       font-size: 13.5px;
-      font-weight: 600;
-      padding: 2px 9px;
+      font-weight: 700;
+      padding: 3px 12px;
       margin-right: 6px;
+      margin-bottom: 5px;
+      box-shadow: 0 0 8px rgba(5, 217, 232, 0.5);
     }
+    
     .asset-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 12px;
+      margin-top: 15px;
+      flex-wrap: wrap;
     }
+    
     .btn {
       border: none;
       outline: none;
       font-size: 1.12rem;
       border-radius: 8px;
       font-weight: 700;
-      padding: 11px 23px;
+      padding: 12px 25px;
       cursor: pointer;
-      background: linear-gradient(90deg,#25b3b3 45%,#1791b3 100%);
-      color: #fff;
-      transition: background .15s;
+      background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 100%);
+      color: var(--dark-bg);
+      transition: all 0.3s ease;
+      font-family: 'Rajdhani', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 5px 15px rgba(5, 217, 232, 0.3);
+      position: relative;
+      overflow: hidden;
+      flex: 1;
+      min-width: 120px;
     }
-    .btn.delete { background: linear-gradient(90deg,#e04d3c 45%,#e85252 100%); }
-    .btn.cancel { background: #ccc; color: #183d5c; }
+    
+    .btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: all 0.5s ease;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(5, 217, 232, 0.5);
+    }
+    
+    .btn:hover::before {
+      left: 100%;
+    }
+    
+    .btn:active {
+      transform: translateY(1px);
+    }
+    
+    .btn.delete {
+      background: linear-gradient(135deg, var(--neon-pink) 0%, #ff2a6d80 100%);
+      box-shadow: 0 5px 15px rgba(255, 42, 109, 0.3);
+    }
+    
+    .btn.delete:hover {
+      box-shadow: 0 8px 20px rgba(255, 42, 109, 0.5);
+    }
+    
+    .btn.cancel {
+      background: linear-gradient(135deg, #555 0%, #333 100%);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      color: var(--text-main);
+    }
+    
     .btn.scan {
-      background: linear-gradient(90deg, #21db9d 30%, #23c6e1 90%);
-      color: #fff;
+      background: linear-gradient(135deg, var(--neon-green) 0%, var(--neon-blue) 100%);
+      color: var(--dark-bg);
       margin-left: 6px;
       border-radius: 8px;
-      padding: 11px 15px;
-      box-shadow: 0 2px 9px #23c6e133;
+      padding: 12px 18px;
+      box-shadow: 0 5px 15px rgba(0, 255, 157, 0.3);
       font-size: 1rem;
     }
+    
+    .btn.scan:hover {
+      box-shadow: 0 8px 20px rgba(0, 255, 157, 0.5);
+    }
+    
     .fab {
       position: fixed;
-      right: 24px;
-      bottom: 24px;
+      right: 30px;
+      bottom: 30px;
       z-index: 100;
-      width: 62px; height: 62px;
-      background: linear-gradient(90deg,#25b3b3 60%,#1791b3 100%);
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--neon-pink) 0%, var(--neon-purple) 100%);
       border-radius: 50%;
-      box-shadow: 0 2px 18px #183d5c33;
+      box-shadow: 0 10px 30px rgba(255, 42, 109, 0.5);
       font-size: 2.5rem;
-      color: #fff;
+      color: var(--dark-bg);
       border: none;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: box-shadow .13s, background .13s;
+      transition: all 0.3s ease;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     }
-    .fab:active { background: #11718d; }
-    #formModal {
-      position: fixed; left: 0; top: 0; right: 0; bottom: 0;
-      background: rgba(24,61,92,0.93);
-      display: none; align-items: center; justify-content: center;
+    
+    .fab:hover {
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 0 15px 40px rgba(255, 42, 109, 0.7);
+    }
+    
+    .fab:active {
+      transform: scale(0.95) rotate(90deg);
+    }
+    
+    #formModal, #typesModal {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(13, 2, 33, 0.95);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
       z-index: 2000;
     }
-    #formModal.show { display: flex; }
-    .form-card {
-      background: var(--superb-card);
-      border-radius: 15px;
-      padding: 22px 16px 15px 16px;
-      min-width: 90vw; max-width: 400px;
-      box-shadow: 0 6px 28px #25b3b3a7;
-      color: var(--text-main);
-      animation: fadein .28s;
+    
+    #formModal.show, #typesModal.show {
+      display: flex;
     }
-    .form-card form {
+    
+    .form-card, .types-card {
+      background: linear-gradient(145deg, rgba(26, 27, 65, 0.95) 0%, rgba(10, 15, 35, 0.95) 100%);
+      border-radius: 15px;
+      padding: 25px 20px;
+      min-width: 90vw;
+      max-width: 450px;
+      box-shadow: 0 15px 40px rgba(5, 217, 232, 0.3);
+      color: var(--text-main);
+      animation: modalAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid var(--card-border);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .form-card::before, .types-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        transparent 45%,
+        rgba(5, 217, 232, 0.1) 50%,
+        transparent 55%
+      );
+      transform: rotate(30deg);
+      animation: shine 6s infinite linear;
+      pointer-events: none;
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(30deg); }
+      100% { transform: translateX(100%) rotate(30deg); }
+    }
+    
+    @keyframes modalAppear {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .form-card h3, .types-card h3 {
+      margin-top: 0;
+      text-align: center;
+      color: var(--neon-blue);
+      font-family: 'Orbitron', sans-serif;
+      text-shadow: var(--glow-blue);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+    
+    .form-card form, .types-card form {
       display: flex;
       flex-direction: column;
-      gap: 13px;
+      gap: 15px;
     }
+    
+    .form-card input, .form-card select, .form-card textarea,
+    .types-card input, .types-card select, .types-card textarea {
+      background: rgba(10, 15, 35, 0.8);
+      border: 1px solid var(--neon-blue);
+      border-radius: 8px;
+      padding: 12px 15px;
+      color: var(--text-main);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 0 10px rgba(5, 217, 232, 0.1);
+    }
+    
+    .form-card input:focus, .form-card select:focus, .form-card textarea:focus,
+    .types-card input:focus, .types-card select:focus, .types-card textarea:focus {
+      border-color: var(--neon-pink);
+      box-shadow: inset 0 0 15px rgba(255, 42, 109, 0.2), 0 0 10px rgba(255, 42, 109, 0.3);
+    }
+    
+    .form-card textarea, .types-card textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    
     .footer {
-      text-align: center; margin-top: 13px; margin-bottom: 14px; color: #7aa9b2; font-size: 1rem;
+      text-align: center;
+      margin: 15px 0;
+      color: var(--neon-blue);
+      font-size: 0.9rem;
+      text-shadow: var(--glow-blue);
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
     }
-    body.dark .footer { color: #34f9e0; }
+    
     @media (min-width: 700px) {
-      .fab { width: 74px; height: 74px; font-size: 2.9rem; right: 44px; bottom: 40px; }
-      .form-card { min-width: 420px; }
+      .fab {
+        width: 80px;
+        height: 80px;
+        font-size: 3rem;
+        right: 40px;
+        bottom: 40px;
+      }
+      
+      .form-card, .types-card {
+        min-width: 500px;
+        padding: 30px 25px;
+      }
+      
+      .search-bar {
+        flex-wrap: nowrap;
+      }
+      
+      .search-bar input, .search-bar select {
+        min-width: auto;
+        max-width: 200px;
+      }
     }
+    
     @keyframes fadein {
       from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: none; }
     }
+    
     #scanner-container {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(24,61,92,0.93);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 2500; flex-direction: column;
-      animation: fadein 0.33s;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(13, 2, 33, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2500;
+      flex-direction: column;
+      animation: fadein 0.4s ease-out;
     }
+    
     #scanner-container video {
       border-radius: 12px;
       max-width: 97vw;
       max-height: 55vh;
-      box-shadow: 0 5px 50px #22b3b3a0;
+      box-shadow: 0 10px 40px rgba(5, 217, 232, 0.5);
+      border: 2px solid var(--neon-blue);
     }
+    
     #scanner-close {
-      background: #e04d3c;
-      color: #fff;
+      background: linear-gradient(135deg, var(--neon-pink) 0%, #ff2a6d80 100%);
+      color: var(--dark-bg);
       font-size: 18px;
       border: none;
       border-radius: 12px;
-      padding: 10px 38px;
-      margin-top: 17px;
+      padding: 12px 40px;
+      margin-top: 20px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 12px #e04d3c48;
+      box-shadow: 0 5px 20px rgba(255, 42, 109, 0.5);
       letter-spacing: 0.7px;
-      transition: background 0.19s;
+      transition: all 0.3s ease;
+      font-family: 'Rajdhani', sans-serif;
+      text-transform: uppercase;
     }
-    #scanner-close:active { background: #b82812; }
+    
+    #scanner-close:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 42, 109, 0.7);
+    }
+    
+    #scanner-close:active {
+      transform: translateY(1px);
+    }
+    
     #scanner-status {
-      color: #fff;
-      margin-top: 12px;
+      color: var(--neon-green);
+      margin-top: 15px;
       text-align: center;
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 600;
-      letter-spacing: 0.2px;
-      text-shadow: 0 2px 20px #1791b3b8;
+      letter-spacing: 0.5px;
+      text-shadow: var(--glow-green);
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .quantity-input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .quantity-input-group label {
+      font-weight: 700;
+      margin: 0;
+      color: var(--neon-blue);
+      text-shadow: var(--glow-blue);
+    }
+    
+    .quantity-input-group input {
+      width: 80px;
+      padding: 10px;
+      text-align: center;
+      background: rgba(10, 15, 35, 0.8);
+      border: 1px solid var(--neon-blue);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-weight: 700;
+    }
+    
+    .individual-items-list {
+      list-style: none;
+      padding-left: 0;
+      max-height: 200px;
+      overflow-y: auto;
+      border-top: 1px solid rgba(5, 217, 232, 0.3);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+    
+    .individual-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(5, 217, 232, 0.2);
+    }
+    
+    /* Type management styles */
+    .type-management {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .type-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(5, 217, 232, 0.2);
+    }
+    
+    .type-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .type-btn {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      min-width: 40px;
+    }
+    
+    .type-input {
+      flex: 1;
+      margin-right: 10px;
+      background: rgba(10, 15, 35, 0.8);
+      border: 1px solid var(--neon-blue);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+    
+    /* Cyberpunk corner accents */
+    .corner-accent {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-style: solid;
+      border-color: var(--neon-blue);
+      pointer-events: none;
+    }
+    
+    .corner-top-left {
+      top: 0;
+      left: 0;
+      border-width: 2px 0 0 2px;
+    }
+    
+    .corner-top-right {
+      top: 0;
+      right: 0;
+      border-width: 2px 2px 0 0;
+    }
+    
+    .corner-bottom-left {
+      bottom: 0;
+      left: 0;
+      border-width: 0 0 2px 2px;
+    }
+    
+    .corner-bottom-right {
+      bottom: 0;
+      right: 0;
+      border-width: 0 2px 2px 0;
+    }
+    
+    /* Add corner accents to cards */
+    .asset-card, .form-card, .types-card {
+      position: relative;
+    }
+    
+    .asset-card .corner-accent {
+      width: 15px;
+      height: 15px;
+      border-color: var(--neon-blue);
+    }
+    
+    /* Cyberpunk pulse animation */
+    @keyframes pulse {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite ease-in-out;
+    }
+    
+    /* Cyberpunk glitch effect */
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(-3px, -3px); }
+      60% { transform: translate(3px, 3px); }
+      80% { transform: translate(3px, -3px); }
+      100% { transform: translate(0); }
+    }
+    
+    .glitch:hover {
+      animation: glitch 0.5s linear infinite;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .asset-list {
+        grid-template-columns: 1fr;
+      }
+      
+      .asset-actions {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="scanlines"></div>
   <header>
-    Superb IT Asset Manager
+    NEON ASSET TRACKER
     <button class="dark-toggle-btn" id="darkModeBtn" title="Toggle dark mode">🌙</button>
   </header>
   <div class="search-bar">
-    <input type="search" id="searchInput" placeholder="Search assets...">
-    <select id="typeFilter"></select>
-    <select id="viewFilter">
-      <option value="All">All Assets</option>
-      <option value="FaultyOnly">Faulty Only</option>
-      <option value="ReservedOnly">Reserved Only</option>
+    <input type="search" id="searchInput" placeholder="SEARCH ASSETS...">
+    <div style="display: flex; align-items: center; flex: 1; min-width: 120px;">
+      <select id="typeFilter"></select>
+      <button class="btn" id="manageTypesBtn" style="margin-left: 5px; padding: 10px 12px;" title="Manage Asset Types">⚙️</button>
+    </div>
+    <select id="statusFilter">
+      <option value="all">ALL ASSETS</option>
+      <option value="faulty">FAULTY ONLY</option>
+      <option value="reserved">RESERVED ONLY</option>
+      <option value="both">FAULTY & RESERVED</option>
+      <option value="neither">NORMAL ONLY</option>
     </select>
-    <button class="btn" id="exportBtn" style="padding:10px 18px;">Export CSV</button>
-    <button class="download-pdf-btn" id="pdfBtn" title="Download Type Quantities as PDF">&#128459;</button>
+    <button class="btn" id="exportBtn" style="padding:10px 18px;">EXPORT CSV</button>
+    <button class="download-pdf-btn" id="pdfBtn" title="Download Type Quantities as PDF">
+      &#128459;
+    </button>
   </div>
   <ul class="asset-list" id="assetsBox"></ul>
   <button class="fab" id="addFab" title="Add Asset">+</button>
-  <div class="footer">&copy; 2024 Superb Hyper. Data stored securely in JSONBin.</div>
+  <div class="footer">&copy; 2024 CYBER SYSTEMS</div>
   <div id="formModal"><div class="form-card" id="formCard"></div></div>
-
-  <!-- Autocomplete Datalist -->
-  <datalist id="assetNameSuggestions"></datalist>
-
+  <div id="typesModal"><div class="types-card" id="typesCard"></div></div>
+  
   <script>
-    // DARK MODE
+    // DARK MODE - Disabled for cyberpunk theme (always dark)
     function setDarkMode(state) {
-      if (state) {
-        document.body.classList.add('dark');
-        document.getElementById("darkModeBtn").textContent = "☀️";
-        localStorage.setItem('superb_darkmode','1');
-      } else {
-        document.body.classList.remove('dark');
-        document.getElementById("darkModeBtn").textContent = "🌙";
-        localStorage.setItem('superb_darkmode','0');
-      }
+      // Always dark for cyberpunk theme
+      document.body.classList.add('dark');
+      document.getElementById("darkModeBtn").textContent = "☀️";
     }
     document.getElementById("darkModeBtn").onclick = function() {
-      setDarkMode(!document.body.classList.contains('dark'));
+      // No toggle for cyberpunk theme
+      alert("Cyberpunk mode is always on!");
     };
-    if (localStorage.getItem('superb_darkmode') === '1') setDarkMode(true);
-
-    // ASSET MANAGER CONFIG
+    setDarkMode(true);
+    
+    // JSONBin Settings
     const JSONBIN_API = "https://api.jsonbin.io/v3/b/686e6c4d5f4bcf6c3afb1182";
     const JSONBIN_KEY = "$2a$10$BqM/s2f2kqZGoB5V14WtWOPOVO5/ccx/wZtBqmQsgeQqh6WMp42We";
-    const ASSET_TYPES = [
-      "Laptop", "Desktop", "Monitor", "Printer", "Router", "Switch", "Scanner",
-      "Keyboard", "Mouse", "UPS", "Projector", "Tablet", "Phone", "Access Point",
-      "Server", "Docking Station", "Webcam", "Headset", "Speaker", "External HDD/SSD",
-      "Flash Drive", "Cables", "Adapter", "Other", "Tally"
+    let ASSET_TYPES = [
+      "LAPTOP", "DESKTOP", "MONITOR", "PRINTER", "ROUTER", "SWITCH", "SCANNER",
+      "KEYBOARD", "MOUSE", "UPS", "PROJECTOR", "TABLET", "PHONE", "ACCESS POINT",
+      "SERVER", "DOCKING STATION", "WEBCAM", "HEADSET", "SPEAKER", "EXTERNAL DRIVE",
+      "FLASH DRIVE", "CABLES", "ADAPTER", "OTHER", "TALLY"
     ];
     const AREA_OPTIONS = [
       "BULK", "ONLINE", "RETAIL", "KIOSK RETAIL", "KIOSK BULK", "SILVERS",
@@ -375,26 +881,52 @@
     ];
     let ALL_ASSETS = [];
     let CURRENT_TYPE = "All Types";
-
+    
+    // Function to group assets by Name
+    function groupAssets(assets) {
+        const groups = {};
+        assets.forEach(asset => {
+            const key = asset.Name || "<i>Unnamed Asset</i>";
+            if (!groups[key]) {
+                groups[key] = [];
+            }
+            groups[key].push(asset);
+        });
+        return groups;
+    }
+    
+    // Helper function to find common values in a group
+    function getCommonGroupValues(groupItems) {
+        if (!groupItems || groupItems.length === 0) return {};
+        const firstItem = groupItems[0];
+        let commonValues = {
+            Type: firstItem.Type,
+            Area: firstItem.Area,
+            Assigned: firstItem.Assigned,
+            Notes: firstItem.Notes,
+            Faulty: firstItem.Faulty,
+            Reserved: firstItem.Reserved
+        };
+        for (let i = 1; i < groupItems.length; i++) {
+            const item = groupItems[i];
+            for (const key in commonValues) {
+                if (commonValues[key] !== item[key]) {
+                    commonValues[key] = undefined;
+                }
+            }
+        }
+        return commonValues;
+    }
+    
     function getTypeCounts() {
-      const counts = {
-        total: ALL_ASSETS.length,
-        faulty: ALL_ASSETS.filter(a => a.Faulty).length,
-        reserved: ALL_ASSETS.filter(a => a.Reserved).length
-      };
+      const counts = {};
       for (const a of ALL_ASSETS) {
         if (!a.Type) continue;
         counts[a.Type] = (counts[a.Type] || 0) + 1;
       }
       return counts;
     }
-
-    function updateAssetNameSuggestions() {
-      const names = [...new Set(ALL_ASSETS.map(a => a.Name).filter(Boolean))];
-      const datalist = document.getElementById("assetNameSuggestions");
-      datalist.innerHTML = names.map(name => `<option value="${name}">${name}</option>`).join("");
-    }
-
+    
     function populateTypeFilter() {
       const sel = document.getElementById("typeFilter");
       const typeCounts = getTypeCounts();
@@ -402,14 +934,138 @@
         ...ASSET_TYPES,
         ...ALL_ASSETS.map(a => a.Type).filter(Boolean)
       ])].sort();
-      const total = typeCounts.total;
-      sel.innerHTML = `<option value="All Types">All Types (${total})</option>` +
+      const total = ALL_ASSETS.length;
+      sel.innerHTML = `<option value="All Types">ALL TYPES (${total})</option>` +
         allTypes.map(t =>
           `<option value="${t}">${t} (${typeCounts[t]||0})</option>`
         ).join('');
       sel.value = CURRENT_TYPE;
     }
-
+    
+    // Modified renderAssets function
+    function renderAssets(search = "", type = "All Types", statusFilter = "all") {
+      const box = document.getElementById("assetsBox");
+      let filtered = ALL_ASSETS;
+      
+      if (search) {
+        filtered = filtered.filter(a =>
+          (a.Name + (a.Type||"") + (a.Serial||"") + (a.Area||"") + (a.Assigned||"") + (a.Notes||""))
+            .toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      
+      if (type && type !== "All Types") {
+        filtered = filtered.filter(a => (a.Type||"").toLowerCase() === type.toLowerCase());
+      }
+      
+      switch (statusFilter) {
+        case "faulty":
+          filtered = filtered.filter(a => a.Faulty === true);
+          break;
+        case "reserved":
+          filtered = filtered.filter(a => a.Reserved === true);
+          break;
+        case "both":
+          filtered = filtered.filter(a => a.Faulty === true && a.Reserved === true);
+          break;
+        case "neither":
+          filtered = filtered.filter(a => a.Faulty !== true && a.Reserved !== true);
+          break;
+      }
+      
+      const assetGroups = groupAssets(filtered);
+      const groupKeys = Object.keys(assetGroups).sort();
+      
+      if (groupKeys.length === 0) {
+        box.innerHTML = `<div style="color:var(--neon-blue);margin:30px 0;text-align:center;text-shadow:var(--glow-blue);">NO ASSETS FOUND</div>`;
+        return;
+      }
+      
+      box.innerHTML = groupKeys.map(groupName => {
+        const groupItems = assetGroups[groupName];
+        const quantity = groupItems.length;
+        const firstItem = groupItems[0];
+        const isGroupOpen = firstItem.open;
+        
+        // Count faulty, reserved, and normal items in the group
+        const faultyCount = groupItems.filter(item => item.Faulty === true).length;
+        const reservedCount = groupItems.filter(item => item.Reserved === true).length;
+        const normalCount = groupItems.filter(item => item.Faulty !== true && item.Reserved !== true).length;
+        
+        return `
+        <li class="asset-card${isGroupOpen?" open":""}" data-name="${groupName}">
+          <div class="corner-accent corner-top-left"></div>
+          <div class="corner-accent corner-top-right"></div>
+          <div class="corner-accent corner-bottom-left"></div>
+          <div class="corner-accent corner-bottom-right"></div>
+          <div class="asset-card-header">
+            <span>${groupName}</span>
+             <div>
+                 <span class="badge quantity-badge">${quantity}</span>
+                ${faultyCount > 0 ? `<span class="badge faulty-badge">F:${faultyCount}</span>` : ''}
+                ${reservedCount > 0 ? `<span class="badge reserved-badge">R:${reservedCount}</span>` : ''}
+                ${normalCount > 0 ? `<span class="badge">N:${normalCount}</span>` : ''}
+            </div>
+            <span class="expand-icon">&#9654;</span>
+          </div>
+          <div class="asset-details">
+            <div><label>TYPE:</label> <span class="chip">${firstItem.Type || "-"}</span></div>
+            <div><label>FAULTY:</label> ${firstItem.Faulty ? '<span style="color:var(--neon-pink);text-shadow:var(--glow-pink);">YES</span>' : '<span style="color:var(--neon-green);text-shadow:var(--glow-green);">NO</span>'}</div>
+            <div><label>RESERVED:</label> ${firstItem.Reserved ? '<span style="color:var(--neon-yellow);text-shadow:0 0 8px rgba(249, 240, 2, 0.7);">YES</span>' : '<span style="color:var(--neon-green);text-shadow:var(--glow-green);">NO</span>'}</div>
+            <div><label>SERIAL:</label> ${firstItem.Serial || "-"} </div>
+            <div><label>AREA:</label> ${firstItem.Area || "-"} </div>
+            <div><label>ASSIGNED:</label> ${firstItem.Assigned || "-"} </div>
+            <div><label>NOTES:</label> ${firstItem.Notes || "-"} </div>
+            <div><em style="color:var(--neon-blue);text-shadow:var(--glow-blue);">QUANTITY: ${quantity}</em></div>
+            <div class="asset-actions">
+              <button class="btn" onclick="editAssetGroup('${groupName}')">EDIT GROUP</button>
+              <button class="btn delete" onclick="deleteAssetGroup('${groupName}')">DELETE GROUP</button>
+            </div>
+            <div style="margin-top: 15px;">
+              <label style="color:var(--neon-purple);text-shadow:var(--glow-purple);">INDIVIDUAL ITEMS:</label>
+              <ul class="individual-items-list">
+                ${groupItems.map((item, groupIndex) => {
+                  const globalIndex = ALL_ASSETS.findIndex(a => a === item);
+                  const serialDisplay = item.Serial ? ` (${item.Serial})` : '';
+                  if (globalIndex === -1) {
+                      console.error("Could not find global index for item:", item);
+                      return `<li class="individual-item" style="color: var(--neon-pink);">ERROR: ITEM NOT FOUND</li>`;
+                  }
+                  return `
+                    <li class="individual-item">
+                      <span>ITEM ${groupIndex + 1}${serialDisplay}</span>
+                      <button class="btn" style="padding: 6px 12px; font-size: 0.9rem;" onclick="editSingleAsset(${globalIndex})">EDIT</button>
+                    </li>
+                  `;
+                }).join('')}
+              </ul>
+            </div>
+          </div>
+        </li>
+      `;
+      }).join("");
+      
+      box.querySelectorAll('.asset-card-header').forEach(header => {
+        header.onclick = function() {
+          const card = header.closest('.asset-card');
+          const groupName = card.getAttribute('data-name');
+          const groupItems = assetGroups[groupName] || [];
+          const isOpen = card.classList.contains('open');
+          groupItems.forEach(item => item.open = !isOpen);
+          card.classList.toggle('open');
+        };
+      });
+      
+      // Add corner accents to all asset cards
+      document.querySelectorAll('.asset-card').forEach(card => {
+        ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(pos => {
+          const corner = document.createElement('div');
+          corner.className = `corner-accent corner-${pos}`;
+          card.appendChild(corner);
+        });
+      });
+    }
+    
     async function fetchAssets() {
       try {
         let res = await fetch(JSONBIN_API + "/latest", {
@@ -420,39 +1076,39 @@
         ALL_ASSETS = data.record || [];
         if (!ALL_ASSETS.length) {
           ALL_ASSETS = [{
-            Name: "Sample Laptop",
-            Type: "Laptop",
+            Name: "SAMPLE LAPTOP",
+            Type: "LAPTOP",
             Serial: "SN123456",
-            Area: "Office",
+            Area: "OFFICE",
             Assigned: "",
             Notes: "",
             Faulty: false,
             Reserved: false
           }];
         }
-        ALL_ASSETS.forEach(a => {
-          if (a.Reserved === undefined) a.Reserved = false;
-        });
-        updateAssetNameSuggestions();
         populateTypeFilter();
         renderAssets(
           document.getElementById("searchInput").value,
           document.getElementById("typeFilter").value,
-          document.getElementById("viewFilter").value
+          document.getElementById("statusFilter").value
         );
       } catch (e) {
-        document.getElementById("assetsBox").innerHTML = `
-          <div style="color:red;margin:20px 0;text-align:center">
-            Could not load data.<br>${e}
-          </div>`;
+        document.getElementById("assetsBox").innerHTML = `<div style="color:var(--neon-pink);margin:30px 0;text-align:center;text-shadow:var(--glow-pink);">DATA LOAD ERROR<br>${e}</div>`;
       }
     }
-
-    async function saveAsset(asset, editingIdx) {
+    
+    // Modified saveAsset function to handle quantity
+    async function saveAsset(asset, editingIdx, quantity = 1) {
       try {
         let updated = [...ALL_ASSETS];
-        if (typeof editingIdx === "number") updated[editingIdx] = asset;
-        else updated.push(asset);
+        const qty = Math.max(1, parseInt(quantity, 10) || 1);
+        if (typeof editingIdx === "number") {
+            updated[editingIdx] = asset;
+        } else {
+            for (let i = 0; i < qty; i++) {
+                updated.push({...asset});
+            }
+        }
         let res = await fetch(JSONBIN_API, {
           method: "PUT",
           headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_KEY },
@@ -460,112 +1116,222 @@
         });
         let result = await res.json();
         if (result && result.record) fetchAssets();
-        else alert("Save failed: " + (result.message || JSON.stringify(result)));
-      } catch (e) { alert("Save error: " + e); }
+        else alert("SAVE FAILED: " + (result.message || JSON.stringify(result)));
+      } catch (e) { alert("SAVE ERROR: " + e); }
     }
-
-    async function deleteAsset(idx) {
-      if (!confirm("Delete this asset?")) return;
-      let updated = ALL_ASSETS.filter((a, i) => i !== idx);
-      try {
-        let res = await fetch(JSONBIN_API, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_KEY },
-          body: JSON.stringify(updated)
+    
+    // New function to delete an entire group
+    async function deleteAssetGroup(groupName) {
+       if (!confirm(`DELETE ALL ASSETS NAMED "${groupName}"?`)) return;
+       let updated = ALL_ASSETS.filter(a => (a.Name || "<i>Unnamed Asset</i>") !== groupName);
+       try {
+         let res = await fetch(JSONBIN_API, {
+           method: "PUT",
+           headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_KEY },
+           body: JSON.stringify(updated)
+         });
+         let result = await res.json();
+         if (result && result.record) fetchAssets();
+         else alert("DELETE FAILED: " + (result.message || JSON.stringify(result)));
+       } catch (e) { alert("DELETE ERROR: " + e); }
+    }
+    
+    // Function to show the group edit form
+    function showGroupEditForm(groupName) {
+        const groupItems = ALL_ASSETS.filter(a => (a.Name || "<i>Unnamed Asset</i>") === groupName);
+        if (groupItems.length === 0) {
+            alert("NO ITEMS FOUND IN THIS GROUP");
+            return;
+        }
+        const commonValues = getCommonGroupValues(groupItems);
+        const itemCount = groupItems.length;
+        const modal = document.getElementById("formModal");
+        const formCard = document.getElementById("formCard");
+        modal.classList.add("show");
+        
+        let formHTML = `
+            <form id="groupEditForm" autocomplete="off">
+                <h3>EDIT GROUP: ${groupName}</h3>
+                <p style="text-align:center; margin-top:0; margin-bottom:15px;color:var(--neon-blue);text-shadow:var(--glow-blue);"><em>EDITING ${itemCount} ITEM(S)</em></p>
+                <label for="groupEditType">TYPE:</label>
+                <select name="Type" id="groupEditType">
+                    <option value="">(NO CHANGE)</option>
+                    ${ASSET_TYPES.map(t =>
+                        `<option value="${t}" ${commonValues.Type === t ? "selected" : ""}>${t}</option>`
+                    ).join("")}
+                </select>
+                <label for="groupEditArea">AREA:</label>
+                <select name="Area" id="groupEditArea">
+                    <option value="">(NO CHANGE)</option>
+                    <option value="" disabled>SELECT AREA</option>
+                    ${AREA_OPTIONS.map(opt => `<option value="${opt}" ${commonValues.Area === opt ? "selected" : ""}>${opt}</option>`).join("")}
+                </select>
+                <label for="groupEditAssigned">ASSIGNED TO:</label>
+                <input type="text" name="Assigned" id="groupEditAssigned" placeholder="ASSIGNED TO" value="${commonValues.Assigned || ''}">
+                <label for="groupEditNotes">NOTES:</label>
+                <textarea name="Notes" id="groupEditNotes" placeholder="NOTES" style="min-height:48px">${commonValues.Notes || ''}</textarea>
+                <div style="display:flex; flex-wrap:wrap; gap:15px; margin-top:10px;">
+                    <label style="display:flex;align-items:center;color:var(--neon-pink);text-shadow:var(--glow-pink);">
+                        <input type="checkbox" name="Faulty" id="groupEditFaultyCheckbox" ${commonValues.Faulty === true ? "checked" : ""} style="margin-right:8px;">
+                        SET FAULTY STATUS
+                    </label>
+                    <select name="FaultyAction" id="groupEditFaultyAction" style="margin-left: 0px; margin-top: 5px;">
+                        <option value="nochange">NO CHANGE</option>
+                        <option value="setTrue">SET TO FAULTY</option>
+                        <option value="setFalse">SET TO NOT FAULTY</option>
+                    </select>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:15px; margin-top:10px;">
+                    <label style="display:flex;align-items:center;color:var(--neon-yellow);text-shadow:0 0 8px rgba(249, 240, 2, 0.7);">
+                        <input type="checkbox" name="Reserved" id="groupEditReservedCheckbox" ${commonValues.Reserved === true ? "checked" : ""} style="margin-right:8px;">
+                        SET RESERVED STATUS
+                    </label>
+                    <select name="ReservedAction" id="groupEditReservedAction" style="margin-left: 0px; margin-top: 5px;">
+                        <option value="nochange">NO CHANGE</option>
+                        <option value="setTrue">SET TO RESERVED</option>
+                        <option value="setFalse">SET TO NOT RESERVED</option>
+                    </select>
+                </div>
+                <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+                    <button class="btn" type="submit" style="flex:1;">UPDATE GROUP</button>
+                    <button class="btn cancel" type="button" id="groupEditCancelBtn" style="flex:1;">CANCEL</button>
+                </div>
+            </form>
+        `;
+        formCard.innerHTML = formHTML;
+        
+        // Add corner accents
+        ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(pos => {
+          const corner = document.createElement('div');
+          corner.className = `corner-accent corner-${pos}`;
+          formCard.appendChild(corner);
         });
-        let result = await res.json();
-        if (result && result.record) fetchAssets();
-        else alert("Delete failed: " + (result.message || JSON.stringify(result)));
-      } catch (e) { alert("Delete error: " + e); }
-    }
-
-    function renderAssets(search = "", type = "All Types", viewFilter = "All") {
-      const box = document.getElementById("assetsBox");
-      let filtered = ALL_ASSETS;
-      if (search) {
-        filtered = filtered.filter(a =>
-          (a.Name + (a.Type||"") + (a.Serial||"") + (a.Area||"") + (a.Assigned||"") + (a.Notes||""))
-            .toLowerCase().includes(search.toLowerCase())
-        );
-      }
-      if (type && type !== "All Types") {
-        filtered = filtered.filter(a => (a.Type||"").toLowerCase() === type.toLowerCase());
-      }
-      if (viewFilter === "FaultyOnly") {
-        filtered = filtered.filter(a => a.Faulty === true);
-      } else if (viewFilter === "ReservedOnly") {
-        filtered = filtered.filter(a => a.Reserved === true);
-      }
-      if (!filtered.length) {
-        box.innerHTML = `<div style="color:#888;margin:20px 0;text-align:center">No assets found.</div>`;
-        return;
-      }
-      box.innerHTML = filtered.map((a, i) => `
-        <li class="asset-card${a.open?" open":""}" data-idx="${i}">
-          <div class="asset-card-header">
-            <span>${a.Name || "<i>Unnamed Asset</i>"}</span>
-            ${a.Faulty ? '<span class="badge faulty-badge">Faulty</span>' : ''}
-            ${a.Reserved ? '<span class="badge reserved-badge">Reserved</span>' : ''}
-            <span class="expand-icon">&#9654;</span>
-          </div>
-          <div class="asset-details">
-            <div><label>Type:</label> <span class="chip">${a.Type || "-"}</span></div>
-            <div><label>Faulty:</label> ${a.Faulty ? 'Yes' : 'No'}</div>
-            <div><label>Reserved:</label> ${a.Reserved ? 'Yes' : 'No'}</div>
-            <div><label>Serial:</label> ${a.Serial || "-"}</div>
-            <div><label>Area:</label> ${a.Area || "-"}</div>
-            <div><label>Assigned:</label> ${a.Assigned || "-"}</div>
-            <div><label>Notes:</label> ${a.Notes || "-"}</div>
-            <div class="asset-actions">
-              <button class="btn" onclick="editAsset(${i})">Edit</button>
-              <button class="btn delete" onclick="deleteAsset(${i})">Delete</button>
-            </div>
-          </div>
-        </li>
-      `).join("");
-      box.querySelectorAll('.asset-card-header').forEach(header => {
-        header.onclick = function() {
-          let card = header.closest('.asset-card');
-          card.classList.toggle('open');
+        
+        document.getElementById("groupEditForm").onsubmit = function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const updates = Object.fromEntries(formData);
+            
+            const updatedAssets = [...ALL_ASSETS];
+            const indicesToUpdate = updatedAssets.reduce((indices, asset, index) => {
+                if ((asset.Name || "<i>Unnamed Asset</i>") === groupName) {
+                    indices.push(index);
+                }
+                return indices;
+            }, []);
+            
+            indicesToUpdate.forEach(idx => {
+                if (updates.Type) updatedAssets[idx].Type = updates.Type;
+                if (updates.Area) updatedAssets[idx].Area = updates.Area;
+                if (updates.Assigned !== undefined) updatedAssets[idx].Assigned = updates.Assigned;
+                if (updates.Notes !== undefined) updatedAssets[idx].Notes = updates.Notes;
+                
+                const faultyAction = updates.FaultyAction;
+                if (faultyAction === "setTrue") {
+                    updatedAssets[idx].Faulty = true;
+                } else if (faultyAction === "setFalse") {
+                    updatedAssets[idx].Faulty = false;
+                }
+                
+                const reservedAction = updates.ReservedAction;
+                if (reservedAction === "setTrue") {
+                    updatedAssets[idx].Reserved = true;
+                } else if (reservedAction === "setFalse") {
+                    updatedAssets[idx].Reserved = false;
+                }
+            });
+            
+            saveUpdatedAssets(updatedAssets);
+            modal.classList.remove("show");
         };
-      });
+        
+        document.getElementById("groupEditCancelBtn").onclick = function() {
+            modal.classList.remove("show");
+        };
     }
-
+    
+    // Helper function to save the updated assets list
+    async function saveUpdatedAssets(updatedAssetsArray) {
+        try {
+            let res = await fetch(JSONBIN_API, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": JSONBIN_KEY
+                },
+                body: JSON.stringify(updatedAssetsArray)
+            });
+            let result = await res.json();
+            if (result && result.record) {
+                ALL_ASSETS = updatedAssetsArray;
+                populateTypeFilter();
+                renderAssets(
+                    document.getElementById("searchInput").value,
+                    document.getElementById("typeFilter").value,
+                    document.getElementById("statusFilter").value
+                );
+            } else {
+                alert("UPDATE FAILED: " + (result.message || JSON.stringify(result)));
+            }
+        } catch (e) {
+            alert("UPDATE ERROR: " + e);
+        }
+    }
+    
+    // Modified showForm function to include quantity input and Reserved checkbox
     function showForm(asset = {}, editingIdx = null) {
       const modal = document.getElementById("formModal");
       const formCard = document.getElementById("formCard");
+      const isEditing = typeof editingIdx === "number";
       modal.classList.add("show");
       formCard.innerHTML = `
         <form id="assetForm" autocomplete="off">
-          <input type="text" name="Name" list="assetNameSuggestions" required placeholder="Asset Name" value="${asset.Name||""}">
+          <h3>${isEditing ? 'EDIT' : 'ADD'} ASSET</h3>
+          <input type="text" name="Name" required placeholder="ASSET NAME" value="${asset.Name||""}">
           <select name="Type">${ASSET_TYPES.map(t =>
             `<option ${t===(asset.Type||ASSET_TYPES[0]) ? "selected":""}>${t}</option>`
           ).join("")}</select>
           <div style="display:flex;gap:7px;">
-            <input type="text" style="flex:1;" id="serialInput" name="Serial" required placeholder="Serial Number" value="${asset.Serial||""}">
-            <button type="button" class="btn scan" id="scanBarcodeBtn" title="Scan barcode">Scan</button>
+            <input type="text" style="flex:1;" id="serialInput" name="Serial" required placeholder="SERIAL NUMBER" value="${asset.Serial||""}">
+            <button type="button" class="btn scan" id="scanBarcodeBtn" title="Scan barcode">SCAN</button>
           </div>
           <select name="Area" required>
-            <option value="" disabled ${asset.Area ? "" : "selected"}>Select Area</option>
+            <option value="" disabled ${asset.Area ? "" : "selected"}>SELECT AREA</option>
             ${AREA_OPTIONS.map(opt => `<option value="${opt}" ${asset.Area === opt ? "selected" : ""}>${opt}</option>`).join("")}
           </select>
-          <input type="text" name="Assigned" placeholder="Assigned To" value="${asset.Assigned||""}">
-          <textarea name="Notes" placeholder="Notes" style="min-height:48px">${asset.Notes||""}</textarea>
-          <label style="display:flex;align-items:center;margin-top:6px;">
-            <input type="checkbox" name="Faulty" ${asset.Faulty ? "checked" : ""} style="margin-right:8px;">
-            Faulty
-          </label>
-          <label style="display:flex;align-items:center;margin-top:6px;">
-            <input type="checkbox" name="Reserved" ${asset.Reserved ? "checked" : ""} style="margin-right:8px;">
-            Reserved
-          </label>
+          <input type="text" name="Assigned" placeholder="ASSIGNED TO" value="${asset.Assigned||""}">
+          <textarea name="Notes" placeholder="NOTES" style="min-height:48px">${asset.Notes||""}</textarea>
+          <div style="display:flex; flex-wrap:wrap; gap:15px; margin-top:6px;">
+              <label style="display:flex;align-items:center;color:var(--neon-pink);text-shadow:var(--glow-pink);">
+                <input type="checkbox" name="Faulty" ${asset.Faulty ? "checked" : ""} style="margin-right:8px;">
+                FAULTY
+              </label>
+              <label style="display:flex;align-items:center;color:var(--neon-yellow);text-shadow:0 0 8px rgba(249, 240, 2, 0.7);">
+                <input type="checkbox" name="Reserved" ${asset.Reserved ? "checked" : ""} style="margin-right:8px;">
+                RESERVED
+              </label>
+          </div>
+          ${!isEditing ? `
+          <div class="quantity-input-group">
+            <label for="quantityInput" style="color:var(--neon-blue);text-shadow:var(--glow-blue);">QUANTITY:</label>
+            <input type="number" id="quantityInput" name="quantity" min="1" value="1" required>
+          </div>
+          ` : ''}
           <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
-            <button class="btn" type="submit" style="flex:1;">Save</button>
-            <button class="btn cancel" type="button" id="cancelBtn" style="flex:1;">Cancel</button>
+            <button class="btn" type="submit" style="flex:1;">${isEditing ? 'UPDATE' : 'ADD'} ASSET</button>
+            <button class="btn cancel" type="button" id="cancelBtn" style="flex:1;">CANCEL</button>
           </div>
         </form>
         <div id="scanner-modal-root"></div>
       `;
+      
+      // Add corner accents
+      ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(pos => {
+        const corner = document.createElement('div');
+        corner.className = `corner-accent corner-${pos}`;
+        formCard.appendChild(corner);
+      });
+      
       document.getElementById("assetForm").onsubmit = function(e) {
         e.preventDefault();
         const form = e.target;
@@ -573,9 +1339,10 @@
         const newAsset = {
           ...formData,
           Faulty: form.Faulty.checked,
-          Reserved: form.Assigned.value.trim() !== "" || form.Reserved.checked
+          Reserved: form.Reserved.checked
         };
-        saveAsset(newAsset, editingIdx);
+        const quantityToAdd = isEditing ? 1 : parseInt(form.quantity?.value, 10) || 1;
+        saveAsset(newAsset, editingIdx, quantityToAdd);
         modal.classList.remove("show");
       };
       document.getElementById("cancelBtn").onclick = function() {
@@ -585,15 +1352,15 @@
         openBarcodeScanner(document.getElementById("serialInput"));
       };
     }
-
+    
     function openBarcodeScanner(inputElem) {
       let modal = document.createElement("div");
       modal.id = "scanner-container";
       modal.innerHTML = `
         <div>
           <video id="barcodeVideo" autoplay></video>
-          <div id="scanner-status">Initializing camera...</div>
-          <button id="scanner-close">Cancel</button>
+          <div id="scanner-status">INITIALIZING CAMERA...</div>
+          <button id="scanner-close">CANCEL SCAN</button>
         </div>
       `;
       document.body.appendChild(modal);
@@ -606,93 +1373,298 @@
         if (modal.parentNode) modal.parentNode.removeChild(modal);
       };
       closeBtn.onclick = stopScan;
-      codeReader.listVideoInputDevices()
+      codeReader
+        .listVideoInputDevices()
         .then(videoInputDevices => {
-          let backCam = videoInputDevices.find(d => /back|rear|environment/i.test(d.label));
+          let backCam = videoInputDevices.find(
+            d => /back|rear|environment/i.test(d.label)
+          );
           let deviceId = backCam ? backCam.deviceId : videoInputDevices[0]?.deviceId;
           if (!deviceId && videoInputDevices.length) deviceId = videoInputDevices[0].deviceId;
           if (!deviceId) {
-            statusElem.textContent = "No camera found!";
+            statusElem.textContent = "NO CAMERA FOUND!";
             return;
           }
           codeReader.decodeFromVideoDevice(deviceId, videoElem, (result, err) => {
             if (result) {
               inputElem.value = result.text;
-              statusElem.textContent = "Scanned: " + result.text;
+              statusElem.textContent = "SCANNED: " + result.text;
+              statusElem.style.color = "var(--neon-green)";
+              statusElem.style.textShadow = "var(--glow-green)";
               setTimeout(stopScan, 900);
             } else if (err && !(err instanceof ZXing.NotFoundException)) {
-              statusElem.textContent = "Error: " + err;
+              statusElem.textContent = "ERROR: " + err;
+              statusElem.style.color = "var(--neon-pink)";
+              statusElem.style.textShadow = "var(--glow-pink)";
             }
           });
         })
-        .catch(e => statusElem.textContent = "Camera error: " + e);
+        .catch(e => {
+          statusElem.textContent = "CAMERA ERROR: " + e;
+          statusElem.style.color = "var(--neon-pink)";
+          statusElem.style.textShadow = "var(--glow-pink)";
+        });
     }
-
-    window.editAsset = function(idx) {
-      showForm(ALL_ASSETS[idx], idx);
-    };
-    window.deleteAsset = deleteAsset;
-
+    
+    // Function to edit a single asset by its global index
+    function editSingleAsset(globalIndex) {
+        if (globalIndex >= 0 && globalIndex < ALL_ASSETS.length) {
+            const assetToEdit = ALL_ASSETS[globalIndex];
+            showForm(assetToEdit, globalIndex);
+        } else {
+            alert("ERROR: INVALID ASSET INDEX");
+        }
+    }
+    
+    // Function to show asset type management modal
+    function showTypeManagement() {
+      const modal = document.getElementById("typesModal");
+      const card = document.getElementById("typesCard");
+      modal.classList.add("show");
+      
+      let html = `
+        <h3>MANAGE ASSET TYPES</h3>
+        <div id="typesList" style="max-height: 60vh; overflow-y: auto; margin-bottom: 20px;">
+          ${ASSET_TYPES.map((type, index) => `
+            <div class="type-item" data-index="${index}">
+              <input type="text" class="type-input" value="${type}" data-original="${type}">
+              <div class="type-actions">
+                <button class="btn type-btn update-type" title="Update Type">💾</button>
+                <button class="btn delete type-btn delete-type" title="Delete Type">🗑️</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button class="btn" id="addTypeField" style="flex:1;">ADD NEW TYPE</button>
+          <button class="btn cancel" id="closeTypesModal" style="flex:1;">CLOSE</button>
+        </div>
+      `;
+      
+      card.innerHTML = html;
+      
+      // Add corner accents
+      ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(pos => {
+        const corner = document.createElement('div');
+        corner.className = `corner-accent corner-${pos}`;
+        card.appendChild(corner);
+      });
+      
+      // Add event listeners for type management
+      document.querySelectorAll('.update-type').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const item = this.closest('.type-item');
+          const index = parseInt(item.dataset.index);
+          const input = item.querySelector('.type-input');
+          const newName = input.value.trim();
+          const originalName = input.dataset.original;
+          
+          if (!newName) {
+            alert("TYPE NAME CANNOT BE EMPTY!");
+            return;
+          }
+          
+          if (newName !== originalName) {
+            // Check if new name already exists
+            if (ASSET_TYPES.includes(newName)) {
+              alert(`ASSET TYPE "${newName}" ALREADY EXISTS!`);
+              return;
+            }
+            
+            // Update the type in the list
+            ASSET_TYPES[index] = newName;
+            input.dataset.original = newName;
+            
+            // Update assets with this type
+            ALL_ASSETS.forEach(asset => {
+              if (asset.Type === originalName) {
+                asset.Type = newName;
+              }
+            });
+            
+            // Save and refresh
+            saveUpdatedAssets(ALL_ASSETS);
+            alert(`ASSET TYPE UPDATED FROM "${originalName}" TO "${newName}"`);
+          }
+        });
+      });
+      
+      document.querySelectorAll('.delete-type').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const item = this.closest('.type-item');
+          const index = parseInt(item.dataset.index);
+          const typeName = ASSET_TYPES[index];
+          
+          // Check if any assets use this type
+          const assetsUsingType = ALL_ASSETS.filter(a => a.Type === typeName);
+          
+          if (assetsUsingType.length > 0) {
+            if (!confirm(`THERE ARE ${assetsUsingType.length} ASSETS USING THE TYPE "${typeName}".\nDELETING THIS TYPE WILL RESET THESE ASSETS TO "OTHER".\nCONTINUE?`)) {
+              return;
+            }
+            
+            // Reset assets to "Other" type
+            assetsUsingType.forEach(asset => {
+              asset.Type = "OTHER";
+            });
+          }
+          
+          // Remove from ASSET_TYPES
+          ASSET_TYPES.splice(index, 1);
+          
+          // Save and refresh
+          saveUpdatedAssets(ALL_ASSETS);
+          showTypeManagement(); // Refresh the modal
+        });
+      });
+      
+      document.getElementById("addTypeField").addEventListener('click', function() {
+        const newList = document.getElementById("typesList");
+        const newIndex = ASSET_TYPES.length;
+        const newItem = document.createElement('div');
+        newItem.className = 'type-item';
+        newItem.dataset.index = newIndex;
+        newItem.innerHTML = `
+          <input type="text" class="type-input" placeholder="NEW TYPE NAME" data-original="">
+          <div class="type-actions">
+            <button class="btn type-btn update-type" title="Add Type">💾</button>
+            <button class="btn delete type-btn delete-type" title="Delete Type">🗑️</button>
+          </div>
+        `;
+        newList.appendChild(newItem);
+        
+        // Add event listeners to the new item
+        newItem.querySelector('.update-type').addEventListener('click', function() {
+          const input = newItem.querySelector('.type-input');
+          const newName = input.value.trim();
+          
+          if (!newName) {
+            alert("TYPE NAME CANNOT BE EMPTY!");
+            return;
+          }
+          
+          if (ASSET_TYPES.includes(newName)) {
+            alert(`ASSET TYPE "${newName}" ALREADY EXISTS!`);
+            return;
+          }
+          
+          // Add to ASSET_TYPES
+          ASSET_TYPES.push(newName);
+          input.dataset.original = newName;
+          
+          // Save and refresh
+          saveUpdatedAssets(ALL_ASSETS);
+          showTypeManagement(); // Refresh the modal
+        });
+        
+        newItem.querySelector('.delete-type').addEventListener('click', function() {
+          newItem.remove();
+        });
+        
+        // Focus on the new input
+        newItem.querySelector('.type-input').focus();
+      });
+      
+      document.getElementById("closeTypesModal").addEventListener('click', function() {
+        modal.classList.remove("show");
+      });
+    }
+    
+    // Update the global reference to the edit functions
+    window.editAssetGroup = showGroupEditForm;
+    window.editSingleAsset = editSingleAsset;
+    window.deleteAssetGroup = deleteAssetGroup;
+    
     document.getElementById("exportBtn").onclick = function() {
-      if (!ALL_ASSETS.length) return alert("No assets to export.");
-      let filtered = ALL_ASSETS;
-      const viewFilter = document.getElementById("viewFilter").value;
-      if (viewFilter === "FaultyOnly") {
-        filtered = filtered.filter(a => a.Faulty === true);
-      } else if (viewFilter === "ReservedOnly") {
-        filtered = filtered.filter(a => a.Reserved === true);
-      }
+      if (!ALL_ASSETS.length) return alert("NO ASSETS TO EXPORT");
       const csv = [
-        ["Name","Type","Serial","Area","Assigned","Notes","Faulty","Reserved"].join(","),
-        ...filtered.map(a =>
-          [a.Name,a.Type,a.Serial,a.Area,a.Assigned,a.Notes,a.Faulty ? "Yes" : "No",a.Reserved ? "Yes" : "No"]
+        ["Name","Type","Serial","Area","Assigned","Notes","Faulty", "Reserved"].join(","),
+        ...ALL_ASSETS.map(a =>
+          [a.Name,a.Type,a.Serial,a.Area,a.Assigned,a.Notes,a.Faulty ? "Yes" : "No", a.Reserved ? "Yes" : "No"]
             .map(x => `"${(x||"").replace(/"/g,'""')}"`).join(",")
         )
       ].join("\n");
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = "IT_Assets_" + (viewFilter === "ReservedOnly" ? "Reserved" : viewFilter === "FaultyOnly" ? "Faulty" : "All") + ".csv";
+      a.href = url; a.download = "CYBER_ASSETS_" + new Date().toISOString().slice(0,10) + ".csv";
       a.click();
       URL.revokeObjectURL(url);
     };
-
+    
     document.getElementById("pdfBtn").onclick = function() {
       const counts = getTypeCounts();
       const doc = new window.jspdf.jsPDF();
+      
+      // Add cyberpunk style background
+      doc.setFillColor(13, 2, 33);
+      doc.rect(0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight(), 'F');
+      
+      // Add title
+      doc.setTextColor(5, 217, 232);
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(18);
-      doc.text("Asset Types & Quantities", 14, 18);
+      doc.setFontSize(22);
+      doc.text("CYBER ASSET INVENTORY", 105, 20, null, null, "center");
+      
+      // Add subtitle
+      doc.setTextColor(255, 42, 109);
       doc.setFontSize(12);
-      let y = 32;
+      doc.text("ASSET TYPES & QUANTITIES", 105, 30, null, null, "center");
+      
+      // Add date
+      doc.setTextColor(139, 155, 180);
+      doc.setFontSize(10);
+      doc.text(new Date().toLocaleDateString(), 105, 37, null, null, "center");
+      
+      // Add grid lines
+      doc.setDrawColor(5, 217, 232, 50);
+      for (let i = 0; i < doc.internal.pageSize.getWidth(); i += 20) {
+        doc.line(i, 40, i, doc.internal.pageSize.getHeight());
+      }
+      
+      // Add asset types
+      doc.setTextColor(209, 247, 255);
+      doc.setFontSize(14);
+      let y = 50;
       Object.keys(counts).sort().forEach((type, idx) => {
-        doc.text(`${type}:`, 22, y + idx * 9);
-        doc.text(`${counts[type]}`, 132, y + idx * 9, { align: 'right' });
+        doc.setTextColor(5, 217, 232);
+        doc.text(`${type}:`, 30, y + idx * 10);
+        doc.setTextColor(0, 255, 157);
+        doc.text(`${counts[type]}`, 180, y + idx * 10, {align:'right'});
       });
-      doc.setFontSize(11);
-      doc.text(`Total assets: ${ALL_ASSETS.length}`, 14, y + Object.keys(counts).length * 9 + 10);
-      doc.save("Asset_Types_Quantities.pdf");
+      
+      // Add total
+      doc.setTextColor(255, 42, 109);
+      doc.setFontSize(16);
+      doc.text(`TOTAL ASSETS: ${ALL_ASSETS.length}`, 105, y + Object.keys(counts).length * 10 + 15, null, null, "center");
+      
+      // Add footer
+      doc.setTextColor(139, 155, 180);
+      doc.setFontSize(8);
+      doc.text("CYBER SYSTEMS INVENTORY REPORT", 105, doc.internal.pageSize.getHeight() - 10, null, null, "center");
+      
+      doc.save("CYBER_ASSETS_" + new Date().toISOString().slice(0,10) + ".pdf");
     };
-
+    
     document.getElementById("addFab").onclick = function() { showForm(); };
-
+    document.getElementById("manageTypesBtn").onclick = showTypeManagement;
+    
     document.getElementById("searchInput").oninput = function(e) {
-      renderAssets(e.target.value, document.getElementById("typeFilter").value, document.getElementById("viewFilter").value);
+      renderAssets(e.target.value, document.getElementById("typeFilter").value, document.getElementById("statusFilter").value);
     };
-
+    
     document.getElementById("typeFilter").onchange = function(e) {
       CURRENT_TYPE = e.target.value;
-      renderAssets(document.getElementById("searchInput").value, e.target.value, document.getElementById("viewFilter").value);
+      renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, document.getElementById("statusFilter").value);
     };
-
-    document.getElementById("viewFilter").onchange = function(e) {
+    
+    document.getElementById("statusFilter").onchange = function(e) {
       renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, e.target.value);
     };
-
+    
     setTimeout(fetchAssets, 120);
     window.onresize = function() {
-      renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, document.getElementById("viewFilter").value);
+      renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, document.getElementById("statusFilter").value);
     };
   </script>
 </body>
