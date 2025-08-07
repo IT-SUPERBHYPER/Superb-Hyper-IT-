@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>IT Asset Manager</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Crucial for mobile rendering - Added viewport-fit=cover -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/@zxing/library@0.19.2/umd/index.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -29,10 +30,11 @@
       --quantity-color: var(--neon-green);
       --faulty-color: var(--neon-pink);
     }
-    
-    body {
-      min-height: 100vh;
-      height: 100vh;
+
+    /* Ensure full viewport usage and prevent horizontal scroll */
+    html, body {
+      min-height: 100vh; /* Use min-height */
+      height: -webkit-fill-available; /* For mobile browsers */
       width: 100vw;
       margin: 0;
       padding: 0;
@@ -41,10 +43,13 @@
       font-family: 'Rajdhani', sans-serif;
       color: var(--text-main);
       -webkit-tap-highlight-color: transparent;
+      /* overflow-x hidden is good, but ensure content doesn't cause it */
       overflow-x: hidden;
       position: relative;
+      /* Prevent default iOS rubber banding if desired (optional) */
+      /* -webkit-overflow-scrolling: touch; */
     }
-    
+
     body::before {
       content: "";
       position: fixed;
@@ -52,20 +57,20 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: 
+      background:
         linear-gradient(45deg, transparent 65%, rgba(255, 42, 109, 0.05) 65%) 0 0,
         linear-gradient(-45deg, transparent 65%, rgba(5, 217, 232, 0.05) 65%) 0 0;
       background-size: 20px 20px;
       pointer-events: none;
       z-index: -1;
     }
-    
+
     /* Cyberpunk grid lines animation */
     @keyframes scanline {
       0% { transform: translateY(-100%); }
       100% { transform: translateY(100%); }
     }
-    
+
     .scanlines {
       position: fixed;
       top: 0;
@@ -83,18 +88,18 @@
       pointer-events: none;
       z-index: 0;
     }
-    
+
     header {
       background: rgba(26, 27, 65, 0.85);
       backdrop-filter: blur(8px);
       box-shadow: 0 0 20px rgba(5, 217, 232, 0.3);
       border-bottom: 1px solid var(--neon-blue);
-      padding: 18px 0 14px 0;
+      padding: 15px 0 12px 0; /* Slightly reduced padding */
       text-align: center;
       font-family: 'Orbitron', sans-serif;
-      font-size: 1.8rem;
+      font-size: 1.5rem; /* Slightly smaller base font */
       font-weight: 900;
-      letter-spacing: 2px;
+      letter-spacing: 1.5px; /* Slightly reduced */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -104,16 +109,18 @@
       color: var(--neon-blue);
       text-shadow: var(--glow-blue);
     }
-    
+
     .dark-toggle-btn {
       position: absolute;
-      right: 20px; top: 14px;
+      right: 15px; /* Adjusted for smaller padding */
+      top: 12px; /* Adjusted for smaller padding */
       background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%);
       color: #fff;
-      font-size: 1.4rem;
+      font-size: 1.2rem; /* Slightly smaller */
       font-weight: 700;
       border-radius: 50%;
-      width: 42px; height: 42px;
+      width: 36px; /* Slightly smaller */
+      height: 36px; /* Slightly smaller */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -123,58 +130,62 @@
       z-index: 200;
       transition: all 0.3s ease;
     }
-    
+
     .dark-toggle-btn:hover {
       transform: scale(1.1);
       box-shadow: 0 0 20px rgba(211, 0, 197, 0.9);
     }
-    
+
     .search-bar {
       display: flex;
-      gap: 12px;
+      gap: 8px; /* Reduced gap */
       background: rgba(26, 27, 65, 0.85);
       backdrop-filter: blur(8px);
-      padding: 15px 20px;
+      padding: 12px 15px; /* Reduced padding */
       position: sticky;
       top: 0;
       z-index: 20;
       border-bottom: 1px solid rgba(5, 217, 232, 0.3);
       align-items: center;
+      /* Allow wrapping for better mobile fit */
       flex-wrap: wrap;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     }
-    
+
     .search-bar input, .search-bar select {
-      font-size: 1.11rem;
-      padding: 12px 15px;
+      font-size: 1rem; /* Slightly smaller font */
+      padding: 10px 12px; /* Reduced padding */
       border: 1px solid var(--neon-blue);
       border-radius: 8px;
       outline: none;
+      /* Flex properties for better distribution */
       flex: 1;
-      min-width: 120px;
+      min-width: 100px; /* Reduced min-width */
       background: rgba(10, 15, 35, 0.8);
       color: var(--text-main);
       font-family: 'Rajdhani', sans-serif;
       font-weight: 600;
       transition: all 0.3s ease;
       box-shadow: inset 0 0 10px rgba(5, 217, 232, 0.2);
+      /* Prevent zoom on iOS Safari */
+      font-size: 16px;
     }
-    
+
     .search-bar input:focus, .search-bar select:focus {
       border-color: var(--neon-pink);
       box-shadow: inset 0 0 15px rgba(255, 42, 109, 0.3), 0 0 10px rgba(255, 42, 109, 0.5);
     }
-    
+
     .search-bar input::placeholder {
       color: var(--text-dim);
     }
-    
+
     .download-pdf-btn {
       background: none;
       border: none;
       cursor: pointer;
-      margin-left: 8px;
-      font-size: 1.6rem;
+      margin-left: 6px; /* Reduced margin */
+      font-size: 1.4rem; /* Slightly smaller */
       vertical-align: middle;
       color: var(--neon-blue);
       transition: all 0.3s ease;
@@ -182,59 +193,60 @@
       outline: none;
       text-shadow: var(--glow-blue);
     }
-    
+
     .download-pdf-btn:hover {
       color: var(--neon-pink);
       text-shadow: var(--glow-pink);
       transform: scale(1.1);
     }
-    
+
     .badge {
       display: inline-block;
-      min-width: 22px;
-      padding: 3px 10px;
-      font-size: 13px;
+      min-width: 20px; /* Slightly smaller */
+      padding: 2px 8px; /* Reduced padding */
+      font-size: 12px; /* Slightly smaller font */
       background: var(--neon-blue);
       color: var(--dark-bg);
       border-radius: 15px;
-      margin-left: 7px;
+      margin-left: 5px; /* Reduced margin */
       font-weight: 700;
       vertical-align: middle;
       text-shadow: none;
       box-shadow: 0 0 8px rgba(5, 217, 232, 0.7);
     }
-    
+
     .faulty-badge {
       background: var(--faulty-color) !important;
       color: var(--dark-bg);
       box-shadow: 0 0 8px rgba(255, 42, 109, 0.7);
     }
-    
+
     .reserved-badge {
       background: var(--reserved-color) !important;
       color: var(--dark-bg);
       box-shadow: 0 0 8px rgba(249, 240, 2, 0.7);
     }
-    
+
     .quantity-badge {
       background: var(--quantity-color) !important;
       color: var(--dark-bg);
       box-shadow: 0 0 8px rgba(0, 255, 157, 0.7);
     }
-    
+
     .asset-list {
       list-style: none;
-      padding: 15px;
+      padding: 12px; /* Reduced padding */
       margin: 0;
       flex: 1 1 auto;
       overflow-y: auto;
       background: transparent;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 15px;
+      /* Adjust grid for smaller screens */
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Slightly smaller min width */
+      gap: 12px; /* Reduced gap */
       perspective: 1000px;
     }
-    
+
     .asset-card {
       background: linear-gradient(145deg, rgba(26, 27, 65, 0.9) 0%, rgba(10, 15, 35, 0.9) 100%);
       border-radius: 12px;
@@ -246,7 +258,7 @@
       transform-style: preserve-3d;
       transform: translateZ(0);
     }
-    
+
     .asset-card::before {
       content: "";
       position: absolute;
@@ -260,25 +272,25 @@
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-    
+
     .asset-card:hover {
       transform: translateY(-5px) translateZ(10px);
       box-shadow: 0 15px 35px rgba(5, 217, 232, 0.4);
     }
-    
+
     .asset-card:hover::before {
       opacity: 0.3;
     }
-    
+
     .asset-card.open {
       box-shadow: 0 10px 30px rgba(5, 217, 232, 0.6);
       transform: translateY(-3px);
     }
-    
+
     .asset-card-header {
       font-weight: 700;
-      font-size: 1.2rem;
-      padding: 18px 20px;
+      font-size: 1.1rem; /* Slightly smaller */
+      padding: 15px 18px; /* Reduced padding */
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -289,73 +301,73 @@
       border-bottom: 1px solid rgba(5, 217, 232, 0.2);
       transition: all 0.3s ease;
     }
-    
+
     .asset-card:hover .asset-card-header {
       color: var(--neon-green);
       text-shadow: var(--glow-green);
     }
-    
+
     .asset-card .expand-icon {
-      margin-left: 8px;
-      font-size: 1.44rem;
+      margin-left: 6px; /* Reduced margin */
+      font-size: 1.3rem; /* Slightly smaller */
       color: var(--neon-blue);
       transition: all 0.3s ease;
       text-shadow: var(--glow-blue);
     }
-    
+
     .asset-card.open .expand-icon {
       transform: rotate(90deg);
       color: var(--neon-green);
       text-shadow: var(--glow-green);
     }
-    
+
     .asset-details {
       display: none;
-      padding: 15px 22px;
-      font-size: 1.05rem;
+      padding: 12px 18px; /* Reduced padding */
+      font-size: 1rem; /* Slightly smaller */
       animation: fadein 0.3s ease-out;
       color: var(--text-main);
-      line-height: 1.6;
+      line-height: 1.5; /* Slightly tighter */
     }
-    
+
     .asset-card.open .asset-details {
       display: block;
     }
-    
+
     .asset-details label {
       font-weight: 600;
       color: var(--neon-green);
       display: inline-block;
-      min-width: 80px;
+      min-width: 70px; /* Slightly smaller */
     }
-    
+
     .asset-details .chip {
       display: inline-block;
       background: var(--chip-bg);
       color: var(--dark-bg);
       border-radius: 6px;
-      font-size: 13.5px;
+      font-size: 12.5px; /* Slightly smaller */
       font-weight: 700;
-      padding: 3px 12px;
-      margin-right: 6px;
-      margin-bottom: 5px;
+      padding: 2px 10px; /* Reduced padding */
+      margin-right: 5px; /* Reduced margin */
+      margin-bottom: 4px; /* Reduced margin */
       box-shadow: 0 0 8px rgba(5, 217, 232, 0.5);
     }
-    
+
     .asset-actions {
       display: flex;
-      gap: 12px;
-      margin-top: 15px;
+      gap: 10px; /* Reduced gap */
+      margin-top: 12px; /* Reduced margin */
       flex-wrap: wrap;
     }
-    
+
     .btn {
       border: none;
       outline: none;
-      font-size: 1.12rem;
+      font-size: 1rem; /* Slightly smaller */
       border-radius: 8px;
       font-weight: 700;
-      padding: 12px 25px;
+      padding: 10px 20px; /* Reduced padding */
       cursor: pointer;
       background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 100%);
       color: var(--dark-bg);
@@ -367,9 +379,9 @@
       position: relative;
       overflow: hidden;
       flex: 1;
-      min-width: 120px;
+      min-width: 100px; /* Reduced min-width */
     }
-    
+
     .btn::before {
       content: "";
       position: absolute;
@@ -380,60 +392,60 @@
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
       transition: all 0.5s ease;
     }
-    
+
     .btn:hover {
       transform: translateY(-3px);
       box-shadow: 0 8px 20px rgba(5, 217, 232, 0.5);
     }
-    
+
     .btn:hover::before {
       left: 100%;
     }
-    
+
     .btn:active {
       transform: translateY(1px);
     }
-    
+
     .btn.delete {
       background: linear-gradient(135deg, var(--neon-pink) 0%, #ff2a6d80 100%);
       box-shadow: 0 5px 15px rgba(255, 42, 109, 0.3);
     }
-    
+
     .btn.delete:hover {
       box-shadow: 0 8px 20px rgba(255, 42, 109, 0.5);
     }
-    
+
     .btn.cancel {
       background: linear-gradient(135deg, #555 0%, #333 100%);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       color: var(--text-main);
     }
-    
+
     .btn.scan {
       background: linear-gradient(135deg, var(--neon-green) 0%, var(--neon-blue) 100%);
       color: var(--dark-bg);
-      margin-left: 6px;
+      margin-left: 5px; /* Reduced margin */
       border-radius: 8px;
-      padding: 12px 18px;
+      padding: 10px 15px; /* Reduced padding */
       box-shadow: 0 5px 15px rgba(0, 255, 157, 0.3);
-      font-size: 1rem;
+      font-size: 0.9rem; /* Slightly smaller */
     }
-    
+
     .btn.scan:hover {
       box-shadow: 0 8px 20px rgba(0, 255, 157, 0.5);
     }
-    
+
     .fab {
       position: fixed;
-      right: 30px;
-      bottom: 30px;
+      right: 20px;
+      bottom: 20px;
       z-index: 100;
-      width: 70px;
-      height: 70px;
+      width: 60px; /* Slightly smaller */
+      height: 60px; /* Slightly smaller */
       background: linear-gradient(135deg, var(--neon-pink) 0%, var(--neon-purple) 100%);
       border-radius: 50%;
       box-shadow: 0 10px 30px rgba(255, 42, 109, 0.5);
-      font-size: 2.5rem;
+      font-size: 2rem; /* Slightly smaller */
       color: var(--dark-bg);
       border: none;
       display: flex;
@@ -444,16 +456,16 @@
       font-weight: 700;
       text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     }
-    
+
     .fab:hover {
       transform: scale(1.1) rotate(90deg);
       box-shadow: 0 15px 40px rgba(255, 42, 109, 0.7);
     }
-    
+
     .fab:active {
       transform: scale(0.95) rotate(90deg);
     }
-    
+
     #formModal, #typesModal {
       position: fixed;
       left: 0;
@@ -466,18 +478,22 @@
       align-items: center;
       justify-content: center;
       z-index: 2000;
+      padding: 10px; /* Add padding for small screens */
     }
-    
+
     #formModal.show, #typesModal.show {
       display: flex;
     }
-    
+
     .form-card, .types-card {
       background: linear-gradient(145deg, rgba(26, 27, 65, 0.95) 0%, rgba(10, 15, 35, 0.95) 100%);
       border-radius: 15px;
-      padding: 25px 20px;
-      min-width: 90vw;
-      max-width: 450px;
+      padding: 20px 15px; /* Reduced padding */
+      /* Adjust width for mobile */
+      width: 95vw;
+      max-width: 95vw;
+      max-height: 90vh; /* Limit height */
+      overflow-y: auto; /* Allow scrolling if content is large */
       box-shadow: 0 15px 40px rgba(5, 217, 232, 0.3);
       color: var(--text-main);
       animation: modalAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -485,7 +501,7 @@
       position: relative;
       overflow: hidden;
     }
-    
+
     .form-card::before, .types-card::before {
       content: "";
       position: absolute;
@@ -503,70 +519,73 @@
       animation: shine 6s infinite linear;
       pointer-events: none;
     }
-    
+
     @keyframes shine {
       0% { transform: translateX(-100%) rotate(30deg); }
       100% { transform: translateX(100%) rotate(30deg); }
     }
-    
+
     @keyframes modalAppear {
       from { opacity: 0; transform: translateY(30px) scale(0.95); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
-    
+
     .form-card h3, .types-card h3 {
       margin-top: 0;
       text-align: center;
       color: var(--neon-blue);
       font-family: 'Orbitron', sans-serif;
       text-shadow: var(--glow-blue);
-      font-size: 1.5rem;
-      margin-bottom: 20px;
+      font-size: 1.3rem; /* Slightly smaller */
+      margin-bottom: 15px; /* Reduced margin */
       letter-spacing: 1px;
     }
-    
+
     .form-card form, .types-card form {
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 12px; /* Reduced gap */
     }
-    
+
     .form-card input, .form-card select, .form-card textarea,
     .types-card input, .types-card select, .types-card textarea {
       background: rgba(10, 15, 35, 0.8);
       border: 1px solid var(--neon-blue);
       border-radius: 8px;
-      padding: 12px 15px;
+      padding: 10px 12px; /* Reduced padding */
       color: var(--text-main);
       font-family: 'Rajdhani', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1rem; /* Slightly smaller */
       font-weight: 600;
       outline: none;
       transition: all 0.3s ease;
       box-shadow: inset 0 0 10px rgba(5, 217, 232, 0.1);
+      /* Prevent zoom on iOS Safari */
+      font-size: 16px;
     }
-    
+
     .form-card input:focus, .form-card select:focus, .form-card textarea:focus,
     .types-card input:focus, .types-card select:focus, .types-card textarea:focus {
       border-color: var(--neon-pink);
       box-shadow: inset 0 0 15px rgba(255, 42, 109, 0.2), 0 0 10px rgba(255, 42, 109, 0.3);
     }
-    
+
     .form-card textarea, .types-card textarea {
-      min-height: 80px;
+      min-height: 70px; /* Reduced min height */
       resize: vertical;
     }
-    
+
     .footer {
       text-align: center;
-      margin: 15px 0;
+      margin: 12px 0; /* Reduced margin */
       color: var(--neon-blue);
-      font-size: 0.9rem;
+      font-size: 0.8rem; /* Slightly smaller */
       text-shadow: var(--glow-blue);
       font-family: 'Orbitron', sans-serif;
       letter-spacing: 1px;
     }
-    
+
+    /* Existing media query for larger screens - keep it */
     @media (min-width: 700px) {
       .fab {
         width: 80px;
@@ -575,27 +594,33 @@
         right: 40px;
         bottom: 40px;
       }
-      
+
       .form-card, .types-card {
         min-width: 500px;
         padding: 30px 25px;
+        max-width: 500px; /* Add max-width for larger screens */
       }
-      
+
       .search-bar {
         flex-wrap: nowrap;
       }
-      
+
       .search-bar input, .search-bar select {
         min-width: auto;
         max-width: 200px;
       }
+
+      /* Ensure body height is 100vh on larger screens */
+      html, body {
+          height: 100vh;
+      }
     }
-    
+
     @keyframes fadein {
       from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: none; }
     }
-    
+
     #scanner-container {
       position: fixed;
       top: 0;
@@ -610,24 +635,27 @@
       z-index: 2500;
       flex-direction: column;
       animation: fadein 0.4s ease-out;
+      padding: 10px; /* Add padding */
     }
-    
+
     #scanner-container video {
       border-radius: 12px;
-      max-width: 97vw;
-      max-height: 55vh;
+      /* Make video fit better on mobile */
+      width: 95vw;
+      max-width: 95vw;
+      max-height: 50vh; /* Limit height */
       box-shadow: 0 10px 40px rgba(5, 217, 232, 0.5);
       border: 2px solid var(--neon-blue);
     }
-    
+
     #scanner-close {
       background: linear-gradient(135deg, var(--neon-pink) 0%, #ff2a6d80 100%);
       color: var(--dark-bg);
-      font-size: 18px;
+      font-size: 16px; /* Slightly smaller */
       border: none;
       border-radius: 12px;
-      padding: 12px 40px;
-      margin-top: 20px;
+      padding: 10px 30px; /* Reduced padding */
+      margin-top: 15px; /* Reduced margin */
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 5px 20px rgba(255, 42, 109, 0.5);
@@ -636,188 +664,234 @@
       font-family: 'Rajdhani', sans-serif;
       text-transform: uppercase;
     }
-    
+
     #scanner-close:hover {
       transform: translateY(-3px);
       box-shadow: 0 8px 25px rgba(255, 42, 109, 0.7);
     }
-    
+
     #scanner-close:active {
       transform: translateY(1px);
     }
-    
+
     #scanner-status {
       color: var(--neon-green);
-      margin-top: 15px;
+      margin-top: 12px; /* Reduced margin */
       text-align: center;
-      font-size: 18px;
+      font-size: 16px; /* Slightly smaller */
       font-weight: 600;
       letter-spacing: 0.5px;
       text-shadow: var(--glow-green);
       font-family: 'Orbitron', sans-serif;
     }
-    
+
     .quantity-input-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px; /* Reduced gap */
     }
-    
+
     .quantity-input-group label {
       font-weight: 700;
       margin: 0;
       color: var(--neon-blue);
       text-shadow: var(--glow-blue);
     }
-    
+
     .quantity-input-group input {
-      width: 80px;
-      padding: 10px;
+      width: 70px; /* Slightly smaller */
+      padding: 8px; /* Reduced padding */
       text-align: center;
       background: rgba(10, 15, 35, 0.8);
       border: 1px solid var(--neon-blue);
       border-radius: 8px;
       color: var(--text-main);
       font-weight: 700;
+      /* Prevent zoom on iOS Safari */
+      font-size: 16px;
     }
-    
+
     .individual-items-list {
       list-style: none;
       padding-left: 0;
-      max-height: 200px;
+      max-height: 150px; /* Reduced max height */
       overflow-y: auto;
       border-top: 1px solid rgba(5, 217, 232, 0.3);
-      padding-top: 10px;
-      margin-top: 10px;
+      padding-top: 8px; /* Reduced padding */
+      margin-top: 8px; /* Reduced margin */
     }
-    
+
     .individual-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 0;
+      padding: 6px 0; /* Reduced padding */
       border-bottom: 1px solid rgba(5, 217, 232, 0.2);
     }
-    
+
     /* Type management styles */
     .type-management {
       display: flex;
-      gap: 10px;
-      margin-top: 15px;
+      gap: 8px; /* Reduced gap */
+      margin-top: 12px; /* Reduced margin */
     }
-    
+
     .type-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
+      padding: 8px 0; /* Reduced padding */
       border-bottom: 1px solid rgba(5, 217, 232, 0.2);
     }
-    
+
     .type-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px; /* Reduced gap */
     }
-    
+
     .type-btn {
-      padding: 6px 12px;
-      font-size: 0.9rem;
-      min-width: 40px;
+      padding: 5px 10px; /* Reduced padding */
+      font-size: 0.8rem; /* Slightly smaller */
+      min-width: 35px; /* Slightly smaller */
     }
-    
+
     .type-input {
       flex: 1;
-      margin-right: 10px;
+      margin-right: 8px; /* Reduced margin */
       background: rgba(10, 15, 35, 0.8);
       border: 1px solid var(--neon-blue);
       border-radius: 8px;
-      padding: 8px 12px;
+      padding: 6px 10px; /* Reduced padding */
       color: var(--text-main);
       font-weight: 600;
+      /* Prevent zoom on iOS Safari */
+      font-size: 16px;
     }
-    
+
     /* Cyberpunk corner accents */
     .corner-accent {
       position: absolute;
-      width: 20px;
-      height: 20px;
+      width: 15px; /* Slightly smaller */
+      height: 15px; /* Slightly smaller */
       border-style: solid;
       border-color: var(--neon-blue);
       pointer-events: none;
     }
-    
+
     .corner-top-left {
       top: 0;
       left: 0;
       border-width: 2px 0 0 2px;
     }
-    
+
     .corner-top-right {
       top: 0;
       right: 0;
       border-width: 2px 2px 0 0;
     }
-    
+
     .corner-bottom-left {
       bottom: 0;
       left: 0;
       border-width: 0 0 2px 2px;
     }
-    
+
     .corner-bottom-right {
       bottom: 0;
       right: 0;
       border-width: 0 2px 2px 0;
     }
-    
+
     /* Add corner accents to cards */
     .asset-card, .form-card, .types-card {
       position: relative;
     }
-    
+
     .asset-card .corner-accent {
-      width: 15px;
-      height: 15px;
+      width: 12px; /* Slightly smaller */
+      height: 12px; /* Slightly smaller */
       border-color: var(--neon-blue);
     }
-    
+
     /* Cyberpunk pulse animation */
     @keyframes pulse {
       0% { opacity: 0.5; }
       50% { opacity: 1; }
       100% { opacity: 0.5; }
     }
-    
+
     .pulse {
       animation: pulse 2s infinite ease-in-out;
     }
-    
+
     /* Cyberpunk glitch effect */
     @keyframes glitch {
       0% { transform: translate(0); }
-      20% { transform: translate(-3px, 3px); }
-      40% { transform: translate(-3px, -3px); }
-      60% { transform: translate(3px, 3px); }
-      80% { transform: translate(3px, -3px); }
+      20% { transform: translate(-2px, 2px); } /* Reduced glitch amount */
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
       100% { transform: translate(0); }
     }
-    
+
     .glitch:hover {
       animation: glitch 0.5s linear infinite;
     }
-    
-    /* Responsive adjustments */
-    @media (max-width: 600px) {
+
+    /* Enhanced responsive adjustments for very small screens */
+    @media (max-width: 480px) {
+      header {
+        font-size: 1.3rem; /* Even smaller on tiny screens */
+        padding: 12px 0 10px 0;
+      }
+      .search-bar {
+        padding: 10px 12px; /* Further reduced padding */
+        gap: 6px; /* Further reduced gap */
+      }
+      .search-bar input, .search-bar select {
+        padding: 8px 10px; /* Further reduced padding */
+        font-size: 0.9rem; /* Even smaller font */
+        min-width: 80px; /* Further reduced min-width */
+      }
       .asset-list {
-        grid-template-columns: 1fr;
+        padding: 10px; /* Further reduced padding */
+        gap: 10px; /* Further reduced gap */
+        grid-template-columns: 1fr; /* Force single column */
       }
-      
-      .asset-actions {
-        flex-direction: column;
+      .asset-card-header {
+        padding: 12px 15px; /* Further reduced padding */
+        font-size: 1rem; /* Further reduced font */
       }
-      
+      .asset-details {
+        padding: 10px 15px; /* Further reduced padding */
+        font-size: 0.95rem; /* Further reduced font */
+      }
       .btn {
-        width: 100%;
+        padding: 8px 15px; /* Further reduced padding */
+        font-size: 0.9rem; /* Further reduced font */
+        min-width: 80px; /* Further reduced min-width */
+      }
+      .form-card, .types-card {
+        padding: 15px 12px; /* Further reduced padding */
+        width: 97vw;
+        max-width: 97vw;
+      }
+      .form-card h3, .types-card h3 {
+        font-size: 1.2rem; /* Further reduced font */
+        margin-bottom: 12px; /* Further reduced margin */
+      }
+      .form-card input, .form-card select, .form-card textarea,
+      .types-card input, .types-card select, .types-card textarea {
+        padding: 8px 10px; /* Further reduced padding */
+        font-size: 0.9rem; /* Further reduced font */
+      }
+      #scanner-container video {
+        width: 97vw;
+        max-width: 97vw;
+      }
+      #scanner-close {
+        padding: 8px 25px; /* Further reduced padding */
+        font-size: 14px; /* Further reduced font */
       }
     }
   </style>
@@ -830,9 +904,9 @@
   </header>
   <div class="search-bar">
     <input type="search" id="searchInput" placeholder="SEARCH ASSETS...">
-    <div style="display: flex; align-items: center; flex: 1; min-width: 120px;">
+    <div style="display: flex; align-items: center; flex: 1; min-width: 100px;"> <!-- Reduced min-width -->
       <select id="typeFilter"></select>
-      <button class="btn" id="manageTypesBtn" style="margin-left: 5px; padding: 10px 12px;" title="Manage Asset Types">⚙️</button>
+      <button class="btn" id="manageTypesBtn" style="margin-left: 5px; padding: 8px 10px;" title="Manage Asset Types">⚙️</button> <!-- Reduced padding -->
     </div>
     <select id="statusFilter">
       <option value="all">ALL ASSETS</option>
@@ -841,7 +915,7 @@
       <option value="both">FAULTY & RESERVED</option>
       <option value="neither">NORMAL ONLY</option>
     </select>
-    <button class="btn" id="exportBtn" style="padding:10px 18px;">EXPORT CSV</button>
+    <button class="btn" id="exportBtn" style="padding:8px 15px;">EXPORT CSV</button> <!-- Reduced padding -->
     <button class="download-pdf-btn" id="pdfBtn" title="Download Type Quantities as PDF">
       &#128459;
     </button>
@@ -851,7 +925,7 @@
   <div class="footer">&copy; 2024 CYBER SYSTEMS</div>
   <div id="formModal"><div class="form-card" id="formCard"></div></div>
   <div id="typesModal"><div class="types-card" id="typesCard"></div></div>
-  
+  <!-- The rest of the body (scripts) remains unchanged -->
   <script>
     // DARK MODE - Disabled for cyberpunk theme (always dark)
     function setDarkMode(state) {
@@ -864,7 +938,6 @@
       alert("Cyberpunk mode is always on!");
     };
     setDarkMode(true);
-    
     // JSONBin Settings
     const JSONBIN_API = "https://api.jsonbin.io/v3/b/686e6c4d5f4bcf6c3afb1182";
     const JSONBIN_KEY = "$2a$10$BqM/s2f2kqZGoB5V14WtWOPOVO5/ccx/wZtBqmQsgeQqh6WMp42We";
@@ -881,7 +954,6 @@
     ];
     let ALL_ASSETS = [];
     let CURRENT_TYPE = "All Types";
-    
     // Function to group assets by Name
     function groupAssets(assets) {
         const groups = {};
@@ -894,7 +966,6 @@
         });
         return groups;
     }
-    
     // Helper function to find common values in a group
     function getCommonGroupValues(groupItems) {
         if (!groupItems || groupItems.length === 0) return {};
@@ -917,7 +988,6 @@
         }
         return commonValues;
     }
-    
     function getTypeCounts() {
       const counts = {};
       for (const a of ALL_ASSETS) {
@@ -926,7 +996,6 @@
       }
       return counts;
     }
-    
     function populateTypeFilter() {
       const sel = document.getElementById("typeFilter");
       const typeCounts = getTypeCounts();
@@ -941,23 +1010,19 @@
         ).join('');
       sel.value = CURRENT_TYPE;
     }
-    
     // Modified renderAssets function
     function renderAssets(search = "", type = "All Types", statusFilter = "all") {
       const box = document.getElementById("assetsBox");
       let filtered = ALL_ASSETS;
-      
       if (search) {
         filtered = filtered.filter(a =>
           (a.Name + (a.Type||"") + (a.Serial||"") + (a.Area||"") + (a.Assigned||"") + (a.Notes||""))
             .toLowerCase().includes(search.toLowerCase())
         );
       }
-      
       if (type && type !== "All Types") {
         filtered = filtered.filter(a => (a.Type||"").toLowerCase() === type.toLowerCase());
       }
-      
       switch (statusFilter) {
         case "faulty":
           filtered = filtered.filter(a => a.Faulty === true);
@@ -972,26 +1037,21 @@
           filtered = filtered.filter(a => a.Faulty !== true && a.Reserved !== true);
           break;
       }
-      
       const assetGroups = groupAssets(filtered);
       const groupKeys = Object.keys(assetGroups).sort();
-      
       if (groupKeys.length === 0) {
         box.innerHTML = `<div style="color:var(--neon-blue);margin:30px 0;text-align:center;text-shadow:var(--glow-blue);">NO ASSETS FOUND</div>`;
         return;
       }
-      
       box.innerHTML = groupKeys.map(groupName => {
         const groupItems = assetGroups[groupName];
         const quantity = groupItems.length;
         const firstItem = groupItems[0];
         const isGroupOpen = firstItem.open;
-        
         // Count faulty, reserved, and normal items in the group
         const faultyCount = groupItems.filter(item => item.Faulty === true).length;
         const reservedCount = groupItems.filter(item => item.Reserved === true).length;
         const normalCount = groupItems.filter(item => item.Faulty !== true && item.Reserved !== true).length;
-        
         return `
         <li class="asset-card${isGroupOpen?" open":""}" data-name="${groupName}">
           <div class="corner-accent corner-top-left"></div>
@@ -1044,7 +1104,6 @@
         </li>
       `;
       }).join("");
-      
       box.querySelectorAll('.asset-card-header').forEach(header => {
         header.onclick = function() {
           const card = header.closest('.asset-card');
@@ -1055,7 +1114,6 @@
           card.classList.toggle('open');
         };
       });
-      
       // Add corner accents to all asset cards
       document.querySelectorAll('.asset-card').forEach(card => {
         ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(pos => {
@@ -1065,7 +1123,6 @@
         });
       });
     }
-    
     async function fetchAssets() {
       try {
         let res = await fetch(JSONBIN_API + "/latest", {
@@ -1096,7 +1153,6 @@
         document.getElementById("assetsBox").innerHTML = `<div style="color:var(--neon-pink);margin:30px 0;text-align:center;text-shadow:var(--glow-pink);">DATA LOAD ERROR<br>${e}</div>`;
       }
     }
-    
     // Modified saveAsset function to handle quantity
     async function saveAsset(asset, editingIdx, quantity = 1) {
       try {
@@ -1119,7 +1175,6 @@
         else alert("SAVE FAILED: " + (result.message || JSON.stringify(result)));
       } catch (e) { alert("SAVE ERROR: " + e); }
     }
-    
     // New function to delete an entire group
     async function deleteAssetGroup(groupName) {
        if (!confirm(`DELETE ALL ASSETS NAMED "${groupName}"?`)) return;
@@ -1135,8 +1190,7 @@
          else alert("DELETE FAILED: " + (result.message || JSON.stringify(result)));
        } catch (e) { alert("DELETE ERROR: " + e); }
     }
-    
-    // Function to show the group edit form
+    // Function to show the group edit form - FIXED VERSION
     function showGroupEditForm(groupName) {
         const groupItems = ALL_ASSETS.filter(a => (a.Name || "<i>Unnamed Asset</i>") === groupName);
         if (groupItems.length === 0) {
@@ -1148,28 +1202,44 @@
         const modal = document.getElementById("formModal");
         const formCard = document.getElementById("formCard");
         modal.classList.add("show");
-        
+
+        // Corrected template string for formHTML
         let formHTML = `
             <form id="groupEditForm" autocomplete="off">
                 <h3>EDIT GROUP: ${groupName}</h3>
                 <p style="text-align:center; margin-top:0; margin-bottom:15px;color:var(--neon-blue);text-shadow:var(--glow-blue);"><em>EDITING ${itemCount} ITEM(S)</em></p>
+
                 <label for="groupEditType">TYPE:</label>
                 <select name="Type" id="groupEditType">
                     <option value="">(NO CHANGE)</option>
-                    ${ASSET_TYPES.map(t =>
-                        `<option value="${t}" ${commonValues.Type === t ? "selected" : ""}>${t}</option>`
-                    ).join("")}
-                </select>
+        `;
+        // Add options for Type
+        ASSET_TYPES.forEach(t => {
+            const selected = commonValues.Type === t ? "selected" : "";
+            formHTML += `                <option value="${t}" ${selected}>${t}</option>\n`;
+        });
+
+        formHTML += `            </select>
+
                 <label for="groupEditArea">AREA:</label>
                 <select name="Area" id="groupEditArea">
                     <option value="">(NO CHANGE)</option>
                     <option value="" disabled>SELECT AREA</option>
-                    ${AREA_OPTIONS.map(opt => `<option value="${opt}" ${commonValues.Area === opt ? "selected" : ""}>${opt}</option>`).join("")}
-                </select>
+        `;
+        // Add options for Area
+        AREA_OPTIONS.forEach(opt => {
+            const selected = commonValues.Area === opt ? "selected" : "";
+            formHTML += `                <option value="${opt}" ${selected}>${opt}</option>\n`;
+        });
+
+        formHTML += `            </select>
+
                 <label for="groupEditAssigned">ASSIGNED TO:</label>
                 <input type="text" name="Assigned" id="groupEditAssigned" placeholder="ASSIGNED TO" value="${commonValues.Assigned || ''}">
+
                 <label for="groupEditNotes">NOTES:</label>
                 <textarea name="Notes" id="groupEditNotes" placeholder="NOTES" style="min-height:48px">${commonValues.Notes || ''}</textarea>
+
                 <div style="display:flex; flex-wrap:wrap; gap:15px; margin-top:10px;">
                     <label style="display:flex;align-items:center;color:var(--neon-pink);text-shadow:var(--glow-pink);">
                         <input type="checkbox" name="Faulty" id="groupEditFaultyCheckbox" ${commonValues.Faulty === true ? "checked" : ""} style="margin-right:8px;">
@@ -1181,6 +1251,7 @@
                         <option value="setFalse">SET TO NOT FAULTY</option>
                     </select>
                 </div>
+
                 <div style="display:flex; flex-wrap:wrap; gap:15px; margin-top:10px;">
                     <label style="display:flex;align-items:center;color:var(--neon-yellow);text-shadow:0 0 8px rgba(249, 240, 2, 0.7);">
                         <input type="checkbox" name="Reserved" id="groupEditReservedCheckbox" ${commonValues.Reserved === true ? "checked" : ""} style="margin-right:8px;">
@@ -1192,26 +1263,27 @@
                         <option value="setFalse">SET TO NOT RESERVED</option>
                     </select>
                 </div>
+
                 <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
                     <button class="btn" type="submit" style="flex:1;">UPDATE GROUP</button>
                     <button class="btn cancel" type="button" id="groupEditCancelBtn" style="flex:1;">CANCEL</button>
                 </div>
             </form>
         `;
+
         formCard.innerHTML = formHTML;
-        
+
         // Add corner accents
         ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(pos => {
-          const corner = document.createElement('div');
-          corner.className = `corner-accent corner-${pos}`;
-          formCard.appendChild(corner);
+            const corner = document.createElement('div');
+            corner.className = `corner-accent corner-${pos}`;
+            formCard.appendChild(corner);
         });
-        
+
         document.getElementById("groupEditForm").onsubmit = function(e) {
             e.preventDefault();
             const formData = new FormData(e.target);
             const updates = Object.fromEntries(formData);
-            
             const updatedAssets = [...ALL_ASSETS];
             const indicesToUpdate = updatedAssets.reduce((indices, asset, index) => {
                 if ((asset.Name || "<i>Unnamed Asset</i>") === groupName) {
@@ -1219,20 +1291,20 @@
                 }
                 return indices;
             }, []);
-            
+
             indicesToUpdate.forEach(idx => {
                 if (updates.Type) updatedAssets[idx].Type = updates.Type;
                 if (updates.Area) updatedAssets[idx].Area = updates.Area;
                 if (updates.Assigned !== undefined) updatedAssets[idx].Assigned = updates.Assigned;
                 if (updates.Notes !== undefined) updatedAssets[idx].Notes = updates.Notes;
-                
+
                 const faultyAction = updates.FaultyAction;
                 if (faultyAction === "setTrue") {
                     updatedAssets[idx].Faulty = true;
                 } else if (faultyAction === "setFalse") {
                     updatedAssets[idx].Faulty = false;
                 }
-                
+
                 const reservedAction = updates.ReservedAction;
                 if (reservedAction === "setTrue") {
                     updatedAssets[idx].Reserved = true;
@@ -1240,16 +1312,15 @@
                     updatedAssets[idx].Reserved = false;
                 }
             });
-            
+
             saveUpdatedAssets(updatedAssets);
             modal.classList.remove("show");
         };
-        
+
         document.getElementById("groupEditCancelBtn").onclick = function() {
             modal.classList.remove("show");
         };
     }
-    
     // Helper function to save the updated assets list
     async function saveUpdatedAssets(updatedAssetsArray) {
         try {
@@ -1277,7 +1348,6 @@
             alert("UPDATE ERROR: " + e);
         }
     }
-    
     // Modified showForm function to include quantity input and Reserved checkbox
     function showForm(asset = {}, editingIdx = null) {
       const modal = document.getElementById("formModal");
@@ -1324,14 +1394,12 @@
         </form>
         <div id="scanner-modal-root"></div>
       `;
-      
       // Add corner accents
       ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(pos => {
         const corner = document.createElement('div');
         corner.className = `corner-accent corner-${pos}`;
         formCard.appendChild(corner);
       });
-      
       document.getElementById("assetForm").onsubmit = function(e) {
         e.preventDefault();
         const form = e.target;
@@ -1352,7 +1420,6 @@
         openBarcodeScanner(document.getElementById("serialInput"));
       };
     }
-    
     function openBarcodeScanner(inputElem) {
       let modal = document.createElement("div");
       modal.id = "scanner-container";
@@ -1405,7 +1472,6 @@
           statusElem.style.textShadow = "var(--glow-pink)";
         });
     }
-    
     // Function to edit a single asset by its global index
     function editSingleAsset(globalIndex) {
         if (globalIndex >= 0 && globalIndex < ALL_ASSETS.length) {
@@ -1415,13 +1481,11 @@
             alert("ERROR: INVALID ASSET INDEX");
         }
     }
-    
     // Function to show asset type management modal
     function showTypeManagement() {
       const modal = document.getElementById("typesModal");
       const card = document.getElementById("typesCard");
       modal.classList.add("show");
-      
       let html = `
         <h3>MANAGE ASSET TYPES</h3>
         <div id="typesList" style="max-height: 60vh; overflow-y: auto; margin-bottom: 20px;">
@@ -1440,16 +1504,13 @@
           <button class="btn cancel" id="closeTypesModal" style="flex:1;">CLOSE</button>
         </div>
       `;
-      
       card.innerHTML = html;
-      
       // Add corner accents
       ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(pos => {
         const corner = document.createElement('div');
         corner.className = `corner-accent corner-${pos}`;
         card.appendChild(corner);
       });
-      
       // Add event listeners for type management
       document.querySelectorAll('.update-type').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -1458,66 +1519,56 @@
           const input = item.querySelector('.type-input');
           const newName = input.value.trim();
           const originalName = input.dataset.original;
-          
           if (!newName) {
             alert("TYPE NAME CANNOT BE EMPTY!");
             return;
           }
-          
           if (newName !== originalName) {
             // Check if new name already exists
             if (ASSET_TYPES.includes(newName)) {
               alert(`ASSET TYPE "${newName}" ALREADY EXISTS!`);
               return;
             }
-            
             // Update the type in the list
             ASSET_TYPES[index] = newName;
             input.dataset.original = newName;
-            
             // Update assets with this type
             ALL_ASSETS.forEach(asset => {
               if (asset.Type === originalName) {
                 asset.Type = newName;
               }
             });
-            
             // Save and refresh
             saveUpdatedAssets(ALL_ASSETS);
             alert(`ASSET TYPE UPDATED FROM "${originalName}" TO "${newName}"`);
           }
         });
       });
-      
       document.querySelectorAll('.delete-type').forEach(btn => {
         btn.addEventListener('click', function() {
           const item = this.closest('.type-item');
           const index = parseInt(item.dataset.index);
           const typeName = ASSET_TYPES[index];
-          
           // Check if any assets use this type
           const assetsUsingType = ALL_ASSETS.filter(a => a.Type === typeName);
-          
           if (assetsUsingType.length > 0) {
-            if (!confirm(`THERE ARE ${assetsUsingType.length} ASSETS USING THE TYPE "${typeName}".\nDELETING THIS TYPE WILL RESET THESE ASSETS TO "OTHER".\nCONTINUE?`)) {
+            if (!confirm(`THERE ARE ${assetsUsingType.length} ASSETS USING THE TYPE "${typeName}".
+DELETING THIS TYPE WILL RESET THESE ASSETS TO "OTHER".
+CONTINUE?`)) {
               return;
             }
-            
             // Reset assets to "Other" type
             assetsUsingType.forEach(asset => {
               asset.Type = "OTHER";
             });
           }
-          
           // Remove from ASSET_TYPES
           ASSET_TYPES.splice(index, 1);
-          
           // Save and refresh
           saveUpdatedAssets(ALL_ASSETS);
           showTypeManagement(); // Refresh the modal
         });
       });
-      
       document.getElementById("addTypeField").addEventListener('click', function() {
         const newList = document.getElementById("typesList");
         const newIndex = ASSET_TYPES.length;
@@ -1532,49 +1583,39 @@
           </div>
         `;
         newList.appendChild(newItem);
-        
         // Add event listeners to the new item
         newItem.querySelector('.update-type').addEventListener('click', function() {
           const input = newItem.querySelector('.type-input');
           const newName = input.value.trim();
-          
           if (!newName) {
             alert("TYPE NAME CANNOT BE EMPTY!");
             return;
           }
-          
           if (ASSET_TYPES.includes(newName)) {
             alert(`ASSET TYPE "${newName}" ALREADY EXISTS!`);
             return;
           }
-          
           // Add to ASSET_TYPES
           ASSET_TYPES.push(newName);
           input.dataset.original = newName;
-          
           // Save and refresh
           saveUpdatedAssets(ALL_ASSETS);
           showTypeManagement(); // Refresh the modal
         });
-        
         newItem.querySelector('.delete-type').addEventListener('click', function() {
           newItem.remove();
         });
-        
         // Focus on the new input
         newItem.querySelector('.type-input').focus();
       });
-      
       document.getElementById("closeTypesModal").addEventListener('click', function() {
         modal.classList.remove("show");
       });
     }
-    
     // Update the global reference to the edit functions
     window.editAssetGroup = showGroupEditForm;
     window.editSingleAsset = editSingleAsset;
     window.deleteAssetGroup = deleteAssetGroup;
-    
     document.getElementById("exportBtn").onclick = function() {
       if (!ALL_ASSETS.length) return alert("NO ASSETS TO EXPORT");
       const csv = [
@@ -1583,7 +1624,7 @@
           [a.Name,a.Type,a.Serial,a.Area,a.Assigned,a.Notes,a.Faulty ? "Yes" : "No", a.Reserved ? "Yes" : "No"]
             .map(x => `"${(x||"").replace(/"/g,'""')}"`).join(",")
         )
-      ].join("\n");
+      ].join("\n"); // Ensure correct line ending
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -1591,37 +1632,30 @@
       a.click();
       URL.revokeObjectURL(url);
     };
-    
     document.getElementById("pdfBtn").onclick = function() {
       const counts = getTypeCounts();
       const doc = new window.jspdf.jsPDF();
-      
       // Add cyberpunk style background
       doc.setFillColor(13, 2, 33);
       doc.rect(0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight(), 'F');
-      
       // Add title
       doc.setTextColor(5, 217, 232);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(22);
       doc.text("CYBER ASSET INVENTORY", 105, 20, null, null, "center");
-      
       // Add subtitle
       doc.setTextColor(255, 42, 109);
       doc.setFontSize(12);
       doc.text("ASSET TYPES & QUANTITIES", 105, 30, null, null, "center");
-      
       // Add date
       doc.setTextColor(139, 155, 180);
       doc.setFontSize(10);
       doc.text(new Date().toLocaleDateString(), 105, 37, null, null, "center");
-      
       // Add grid lines
       doc.setDrawColor(5, 217, 232, 50);
       for (let i = 0; i < doc.internal.pageSize.getWidth(); i += 20) {
         doc.line(i, 40, i, doc.internal.pageSize.getHeight());
       }
-      
       // Add asset types
       doc.setTextColor(209, 247, 255);
       doc.setFontSize(14);
@@ -1632,36 +1666,28 @@
         doc.setTextColor(0, 255, 157);
         doc.text(`${counts[type]}`, 180, y + idx * 10, {align:'right'});
       });
-      
       // Add total
       doc.setTextColor(255, 42, 109);
       doc.setFontSize(16);
       doc.text(`TOTAL ASSETS: ${ALL_ASSETS.length}`, 105, y + Object.keys(counts).length * 10 + 15, null, null, "center");
-      
       // Add footer
       doc.setTextColor(139, 155, 180);
       doc.setFontSize(8);
       doc.text("CYBER SYSTEMS INVENTORY REPORT", 105, doc.internal.pageSize.getHeight() - 10, null, null, "center");
-      
       doc.save("CYBER_ASSETS_" + new Date().toISOString().slice(0,10) + ".pdf");
     };
-    
     document.getElementById("addFab").onclick = function() { showForm(); };
     document.getElementById("manageTypesBtn").onclick = showTypeManagement;
-    
     document.getElementById("searchInput").oninput = function(e) {
       renderAssets(e.target.value, document.getElementById("typeFilter").value, document.getElementById("statusFilter").value);
     };
-    
     document.getElementById("typeFilter").onchange = function(e) {
       CURRENT_TYPE = e.target.value;
       renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, document.getElementById("statusFilter").value);
     };
-    
     document.getElementById("statusFilter").onchange = function(e) {
       renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, e.target.value);
     };
-    
     setTimeout(fetchAssets, 120);
     window.onresize = function() {
       renderAssets(document.getElementById("searchInput").value, document.getElementById("typeFilter").value, document.getElementById("statusFilter").value);
