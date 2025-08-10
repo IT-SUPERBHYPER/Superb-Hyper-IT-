@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <link rel="manifest" href="manifest.json">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <meta name="theme-color" content="#2870ea"/>
   <style>
     html, body { height: 100%; }
@@ -242,29 +243,53 @@
       if (!results.length) return alert('No data to download!');
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      const col = ["Date", "Scale Model", "Location", "Measured (kg)", "Difference", "Status", "Notes"];
-      const rows = results.map(r => [
-        r.date,
-        r.scaleModel,
-        r.location,
-        r.weight.toFixed(2),
-        (r.diff > 0 ? "+" : "") + r.diff.toFixed(2) + " kg",
-        r.status,
-        r.notes
-      ]);
+      
+      // Set up columns with appropriate widths
+      const columns = [
+        { header: 'Date', dataKey: 'date', width: 25 },
+        { header: 'Scale Model', dataKey: 'scaleModel', width: 25 },
+        { header: 'Location', dataKey: 'location', width: 25 },
+        { header: 'Measured (kg)', dataKey: 'weight', width: 20 },
+        { header: 'Difference', dataKey: 'diff', width: 20 },
+        { header: 'Status', dataKey: 'status', width: 25 },
+        { header: 'Notes', dataKey: 'notes', width: 30 }
+      ];
+
+      // Prepare data rows
+      const rows = results.map(r => ({
+        date: r.date,
+        scaleModel: r.scaleModel,
+        location: r.location,
+        weight: r.weight.toFixed(2),
+        diff: (r.diff > 0 ? "+" : "") + r.diff.toFixed(2) + " kg",
+        status: r.status,
+        notes: r.notes
+      }));
+
+      // Add title
       doc.setFontSize(16);
-      doc.text("Scale Calibration Report", 10, 15);
-      doc.setFontSize(10);
-      let startY = 25;
-      const rowHeight = 8;
-      col.forEach((c, i) => {
-        doc.text(c, 10 + i*30, startY);
+      doc.text("Scale Calibration Report", 14, 20);
+      
+      // Generate table with autoTable plugin
+      doc.autoTable({
+        columns: columns,
+        body: rows,
+        startY: 30,
+        styles: {
+          fontSize: 8,
+          cellPadding: 2
+        },
+        headStyles: {
+          fillColor: [40, 112, 234],
+          textColor: [255, 255, 255],
+          fontSize: 8
+        },
+        alternateRowStyles: {
+          fillColor: [240, 240, 240]
+        },
+        margin: { left: 10, right: 10 }
       });
-      rows.forEach((row, rIdx) => {
-        row.forEach((cell, cIdx) => {
-          doc.text(String(cell), 10 + cIdx*30, startY + rowHeight * (rIdx + 1));
-        });
-      });
+
       doc.save('scale_calibration.pdf');
     }
 
